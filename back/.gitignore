@@ -1,0 +1,9 @@
+/node_modules
+*.env*
+/dist
+package-lock.json
+javascript/**/migrations/
+typescript/**/migrations/
+misc/**/migrations/
+databases/**/migrations/
+experimental/**/*.db
