@@ -11,8 +11,59 @@ datasource db {
 }
 
 model User {
-  id Int @id @default(autoincrement())
+  userId       Int     @id @default(autoincrement())
   username String
-  email String @unique
+  email    String  @unique
   password String
+  role     String?
+
+  shops   Shop[]   @relation("shops_relation")
+  reviews Review[] @relation("reviews_to_user_relation")
+
+  @@map("users")
+}
+
+model Shop {
+  shopId   Int    @id @default(autoincrement())
+  name String @unique
+
+  userId Int
+  user   User @relation("shops_relation", fields: [userId], references: [userId])
+
+  items Item[] @relation("item_to_shop_relation")
+
+  @@unique([shopId, userId])
+  @@map("shops")
+}
+
+model Item {
+  itemId     Int     @id @default(autoincrement())
+  name   String
+  price  Decimal @db.Money
+
+  shopId Int
+  userId Int
+  shop   Shop @relation("item_to_shop_relation", fields: [shopId, userId], references: [shopId, userId])
+
+  reviews Review[] @relation("reviews_to_item_relation")
+
+  @@map("items")
+}
+
+model Review {
+  reviewId          Int     @id @default(autoincrement())
+  rating      Decimal
+  title       String  @db.VarChar(100)
+  description String  @db.VarChar(5000)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId Int
+  user   User @relation("reviews_to_user_relation", fields: [userId], references: [userId])
+
+  itemId Int
+  item   Item @relation("reviews_to_item_relation", fields: [itemId], references: [itemId])
+
+  @@unique([userId, itemId])
+  @@map("reviews")
 }

@@ -33,11 +33,20 @@ export const signup = async (req: Request, res: Response) => {
     },
   })
 
-  const token = jwt.sign({ userId: user.id, email }, process.env.JWT_SECRET, {
-    expiresIn: "1h",
+  const payload = {
+    userId: user.userId,
+    email: user.email,
+    username: user.username,
+  }
+
+  const token = jwt.sign(payload, process.env.JWT_SECRET, {
+    expiresIn: "30d",
   })
 
-  res.cookie("token", token, { httpOnly: true })
+  res.cookie("token", token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+  })
   return res
     .status(StatusCodes.CREATED)
     .json({ msg: "User created successfully" })
@@ -57,11 +66,25 @@ export const signin = async (req: Request, res: Response) => {
   })
 
   if (await argon.verify(user.password, password)) {
-    const token = jwt.sign({ userId: user.id, email }, process.env.JWT_SECRET, {
-      expiresIn: "1h",
+    let payload = {
+      userId: user.userId,
+      email: user.email,
+      username: user.username,
+    }
+
+    if (user.role) {
+      //@ts-ignore
+      payload.role = user.role
+    }
+
+    const token = jwt.sign(payload, process.env.JWT_SECRET, {
+      expiresIn: "30d",
     })
 
-    res.cookie("token", token, { httpOnly: true })
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+    })
     return res.status(200).json({ msg: "User logged in successfully" })
   } else {
     throw new UnauthenticatedError("Invalid credentials")

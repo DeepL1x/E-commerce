@@ -5,15 +5,17 @@ import dotenv from "dotenv"
 import cookieParser from "cookie-parser"
 import { auth } from "./middlewares/auth"
 import { errorHandlerMiddleware } from "./middlewares/error-handler"
+import cors from "cors"
 dotenv.config()
 
 const app = express()
 
 app.use(express.json())
 app.use(cookieParser())
+app.use(cors())
 
-app.use("/api/v1", router())
-app.get("/api/v1/hello", auth, (req: express.Request, res: express.Response) =>
+app.use(`/${process.env.API_URL}`, router())
+app.get(`/${process.env.API_URL}/hello`, auth, (req: express.Request, res: express.Response) =>
   res.send(
     // @ts-ignore
     req.user

@@ -3,6 +3,6 @@ import express from "express"
 
 
 export default (router: express.Router) => {
-    router.post("/auth/signin", signin)
-    router.post("/auth/signup", signup)
+    router.post(`/${process.env.AUTH_ROUTE}/signin`, signin)
+    router.post(`/${process.env.AUTH_ROUTE}/signup`, signup)
 }
