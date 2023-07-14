@@ -1,11 +1,15 @@
-import './App.scss'
-import { Header } from './components/Header'
+import "./App.scss"
+import Header from "components/Header/Header"
+import MainPage from "components/MainPage/MainPage"
+import MobileContextProvider from "contexts/MobileContext"
 
 function App() {
-
   return (
     <>
-      <Header/>
+      <MobileContextProvider>
+        <Header />
+        <MainPage />
+      </MobileContextProvider>
     </>
   )
 }
