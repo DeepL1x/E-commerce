@@ -24,8 +24,10 @@ model User {
 }
 
 model Shop {
-  shopId Int    @id @default(autoincrement())
-  name   String @unique
+  shopId    Int      @id @default(autoincrement())
+  name      String   @unique
+  tags      String[]
+  shopImage String?
 
   userId Int
   user   User @relation("shops_relation", fields: [userId], references: [userId])
@@ -37,15 +39,15 @@ model Shop {
 }
 
 model Item {
-  itemId      Int     @id @default(autoincrement())
-  name        String
-  price       Decimal @default(0) @db.Money
-  totalAmount Int     @default(0)
-  reservedAmount Int  @default(0)
+  itemId         Int     @id @default(autoincrement())
+  name           String
+  price          Decimal @default(0) @db.Money
+  totalAmount    Int     @default(0)
+  reservedAmount Int     @default(0)
 
-  shopId      Int
-  userId      Int
-  shop        Shop    @relation("item_to_shop_relation", fields: [shopId, userId], references: [shopId, userId])
+  shopId Int
+  userId Int
+  shop   Shop @relation("item_to_shop_relation", fields: [shopId, userId], references: [shopId, userId])
 
   reviews Review[] @relation("reviews_to_item_relation")
 
