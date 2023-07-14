@@ -22,7 +22,7 @@ app.get(`/${process.env.API_URL}/hello`, auth, (req: express.Request, res: expre
   )
 )
 
-app.use(errorHandlerMiddleware)
+// app.use(errorHandlerMiddleware)
 
 const port = process.env.PORT || 5000
 

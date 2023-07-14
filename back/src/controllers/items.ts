@@ -1,24 +1,8 @@
-import { PrismaClient, Item } from "@prisma/client"
+import { PrismaClient, Item, Review } from "@prisma/client"
 import { Request, Response } from "express"
 import { StatusCodes } from "http-status-codes"
-import url from "url"
 
 const prisma = new PrismaClient()
-
-export const getItemsByShop = async (req: Request, res: Response) => {
-  const { name } = req.params
-  const items: Item[] = (
-    await prisma.shop.findUnique({
-      where: {
-        name: name,
-      },
-      include: {
-        items: true,
-      },
-    })
-  ).items
-  return res.status(StatusCodes.OK).json(items)
-}
 
 export const createItem = async (req: Request, res: Response) => {
   const req_item: Item = req.body
@@ -61,13 +45,27 @@ export const deleteItem = async (req: Request, res: Response) => {
 }
 
 export const getItemsByFilter = async (req: Request, res: Response) => {
-  const query = url.parse(req.url).query
-  let filter
-  if (query) {
-    filter = JSON.parse(decodeURIComponent(query))
-  }
+  const params = req.query
+
   const items: Item[] = await prisma.item.findMany({
-    where: filter,
+    where: params,
   })
   return res.status(StatusCodes.OK).json(items)
+}
+
+export const getItemReviews = async (req: Request, res: Response) => {
+  const { itemId } = req.params
+  console.log(itemId)
+
+  const reviews: Review[] = (
+    await prisma.item.findUnique({
+      where: {
+        itemId: Number(itemId),
+      },
+      include: {
+        reviews: true,
+      },
+    })
+  ).reviews
+  return res.status(StatusCodes.OK).json(reviews)
 }

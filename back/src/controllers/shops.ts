@@ -1,11 +1,12 @@
-import { PrismaClient, Shop, User } from "@prisma/client"
+import { Item, PrismaClient, Shop, User } from "@prisma/client"
 import { Request, Response } from "express"
+import { StatusCodes } from "http-status-codes"
 
 const prisma = new PrismaClient()
 
 export const getAllShops = async (req: Request, res: Response) => {
   const shops: Shop[] = await prisma.shop.findMany()
-  return res.status(200).json(shops)
+  return res.status(StatusCodes.OK).json(shops)
 }
 
 export const createShop = async (req: Request, res: Response) => {
@@ -16,7 +17,7 @@ export const createShop = async (req: Request, res: Response) => {
   const res_shop = await prisma.shop.create({
     data: { name: req_shop.name, userId: user.userId },
   })
-  return res.status(200).json(res_shop)
+  return res.status(StatusCodes.CREATED).json(res_shop)
 }
 
 export const updateShop = async (req: Request, res: Response) => {
@@ -25,7 +26,7 @@ export const updateShop = async (req: Request, res: Response) => {
     where: { shopId: req_shop.shopId },
     data: req_shop,
   })
-  return res.status(200).json(res_shop)
+  return res.status(StatusCodes.OK).json(res_shop)
 }
 
 export const getShopsByUserId = async (req: Request, res: Response) => {
@@ -35,7 +36,7 @@ export const getShopsByUserId = async (req: Request, res: Response) => {
       userId: Number(userId),
     },
   })
-  return res.status(200).json(shops)
+  return res.status(StatusCodes.OK).json(shops)
 }
 
 export const deleteShop = async (req: Request, res: Response) => {
@@ -43,5 +44,20 @@ export const deleteShop = async (req: Request, res: Response) => {
   const deleted_shop = await prisma.shop.delete({
     where: { shopId: shopId },
   })
-  return res.status(200).json(deleted_shop)
+  return res.status(StatusCodes.OK).json(deleted_shop)
+}
+
+export const getShopItems = async (req: Request, res: Response) => {
+  const { name } = req.params
+  const items: Item[] = (
+    await prisma.shop.findUnique({
+      where: {
+        name: name,
+      },
+      include: {
+        items: true,
+      },
+    })
+  ).items
+  return res.status(StatusCodes.OK).json(items)
 }
