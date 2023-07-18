@@ -33,9 +33,24 @@ model Shop {
   user   User @relation("shops_relation", fields: [userId], references: [userId])
 
   items Item[] @relation("item_to_shop_relation")
+  sections Section[] @relation("section_to_shop_relation")
 
   @@unique([shopId, userId])
   @@map("shops")
+}
+
+model Section {
+  sectionId Int @id @default(autoincrement())
+  text String?
+  imgUrls String[] 
+  order Int?
+
+  shopId Int
+  userId Int
+  shop Shop @relation("section_to_shop_relation", fields: [shopId, userId], references: [shopId, userId])
+
+  @@unique([order, shopId])
+  @@map("sections")
 }
 
 model Item {
