@@ -1,12 +1,41 @@
-import { createShop, deleteShop, getAllShops, getShopItems, getShopsByUserId, updateShop } from "../controllers/shops"
+import {
+  createShop,
+  deleteShop,
+  getAllShops,
+  getFullShop,
+  getShopItems,
+  updateShop,
+} from "../controllers/shops"
 import { auth, isOwnerOfShop } from "../middlewares/auth"
 import express from "express"
+import Routes from "./routes"
+import fileUpload from "../middlewares/fileUpload"
+import { shopValidation } from "../middlewares/validations"
 
 export default (router: express.Router) => {
-  router.get(`/${process.env.SHOPS_ROUTE}/all`, getAllShops)
-  // router.get(`/${process.env.SHOPS_ROUTE}/:id`, getShopsByUserId)
-  router.get(`/${process.env.SHOPS_ROUTE}/:name/items`, getShopItems)
-  router.post(`/${process.env.SHOPS_ROUTE}/`, auth, createShop )
-  router.put(`/${process.env.SHOPS_ROUTE}/`, auth, isOwnerOfShop, updateShop )
-  router.delete(`/${process.env.SHOPS_ROUTE}/`, auth, isOwnerOfShop, deleteShop )
+  router.get(`/${Routes.SHOPS}/all`, getAllShops)
+  router.get(`/${Routes.SHOPS}/:shopId/items`, shopValidation, getShopItems)
+  router.get(`/${Routes.SHOPS}/:shopId/full`, shopValidation, getFullShop)
+  router.post(
+    `/${Routes.SHOPS}/`,
+    auth,
+    fileUpload.single("image"),
+    shopValidation,
+    createShop
+  )
+  router.put(
+    `/${Routes.SHOPS}/`,
+    auth,
+    fileUpload.single("image"),
+    shopValidation,
+    isOwnerOfShop,
+    updateShop
+  )
+  router.delete(
+    `/${Routes.SHOPS}/`,
+    auth,
+    shopValidation,
+    isOwnerOfShop,
+    deleteShop
+  )
 }

@@ -4,7 +4,7 @@ import "express-async-errors"
 import dotenv from "dotenv"
 import cookieParser from "cookie-parser"
 import { auth } from "./middlewares/auth"
-import { errorHandlerMiddleware } from "./middlewares/error-handler"
+import { errorHandlerMiddleware } from "./middlewares/errorHandler"
 import cors from "cors"
 dotenv.config()
 
@@ -12,17 +12,25 @@ const app = express()
 
 app.use(express.json())
 app.use(cookieParser())
-app.use(cors())
-
-app.use(`/${process.env.API_URL}`, router())
-app.get(`/${process.env.API_URL}/hello`, auth, (req: express.Request, res: express.Response) =>
-  res.send(
-    // @ts-ignore
-    req.user
-  )
+app.use(
+  cors({
+    credentials: true,
+    origin: "http://localhost:3000",
+  })
 )
 
-// app.use(errorHandlerMiddleware)
+app.use(`/${process.env.API_URL}`, router())
+app.get(
+  `/${process.env.API_URL}/hello`,
+  auth,
+  (req: express.Request, res: express.Response) =>
+    res.send(
+      // @ts-ignore
+      req.user
+    )
+)
+
+app.use(errorHandlerMiddleware)
 
 const port = process.env.PORT || 5000
 
@@ -31,7 +39,7 @@ const start = async () => {
     app.listen(port, () =>
       console.log(`server is listening on port ${port}...`)
     )
-  } catch (error)   {
+  } catch (error) {
     console.log(error)
   }
 }

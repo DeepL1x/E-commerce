@@ -1,6 +1,9 @@
 import { Item, PrismaClient, Shop, User } from "@prisma/client"
 import { Request, Response } from "express"
 import { StatusCodes } from "http-status-codes"
+import Routes from "../routes/routes"
+import { NotFoundError } from "../errors/not-found"
+import { deleteFile } from "middlewares/fileUpload"
 
 const prisma = new PrismaClient()
 
@@ -11,19 +14,36 @@ export const getAllShops = async (req: Request, res: Response) => {
 
 export const createShop = async (req: Request, res: Response) => {
   const req_shop: Shop = req.body
-  //@ts-ignore
-  const user: User = req.user
 
   const res_shop = await prisma.shop.create({
-    data: { name: req_shop.name, userId: user.userId },
+    data: req_shop,
   })
   return res.status(StatusCodes.CREATED).json(res_shop)
 }
 
 export const updateShop = async (req: Request, res: Response) => {
   const req_shop: Shop = req.body
+  const file = req.file as Express.Multer.File
+
+  let actualShopId
+  if (req_shop.name) {
+    actualShopId = req_shop.shopId
+    req_shop.shopId = req_shop.name.toLocaleLowerCase().replace(" ", "-")
+  }
+
+  const oldImg = await (
+    await prisma.shop.findUnique({ where: { shopId: actualShopId } })
+  ).shopImage
+
+  if (file) {
+    deleteFile(oldImg.split("/").pop())
+    req_shop.shopImage =
+      `http://localhost:${process.env.PORT}/${process.env.API_URL}/${Routes.IMGS}` +
+      file.filename
+  }
+
   const res_shop = await prisma.shop.update({
-    where: { shopId: req_shop.shopId },
+    where: { shopId: actualShopId },
     data: req_shop,
   })
   return res.status(StatusCodes.OK).json(res_shop)
@@ -44,20 +64,41 @@ export const deleteShop = async (req: Request, res: Response) => {
   const deleted_shop = await prisma.shop.delete({
     where: { shopId: shopId },
   })
+  deleteFile(deleted_shop.shopImage.split("/").pop())
   return res.status(StatusCodes.OK).json(deleted_shop)
 }
 
 export const getShopItems = async (req: Request, res: Response) => {
-  const { name } = req.params
+  const { shopId } = req.params
   const items: Item[] = (
     await prisma.shop.findUnique({
       where: {
-        name: name,
+        shopId: shopId,
       },
       include: {
         items: true,
       },
     })
-  ).items
+  )?.items
+  if (!items) {
+    throw new NotFoundError("Items of specified shop not found")
+  }
   return res.status(StatusCodes.OK).json(items)
+}
+
+export const getFullShop = async (req: Request, res: Response) => {
+  const { shopId } = req.params
+  const shop: Shop = await prisma.shop.findUnique({
+    where: {
+      shopId: shopId,
+    },
+    include: {
+      sections: {
+        orderBy: {
+          order: "asc",
+        },
+      },
+    },
+  })
+  return res.status(StatusCodes.OK).json(shop)
 }

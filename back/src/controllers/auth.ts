@@ -54,9 +54,9 @@ export const signup = async (req: Request, res: Response) => {
 
 export const signin = async (req: Request, res: Response) => {
   const { email, password } = req.body
-
+  
   if (!email && !password) {
-    throw new BadRequestError("Please provide username and password")
+    throw new BadRequestError("Please provide email and password")
   }
 
   const user = await prisma.user.findUnique({
@@ -64,6 +64,10 @@ export const signin = async (req: Request, res: Response) => {
       email: email,
     },
   })
+
+  if (!user) {
+    throw new UnauthenticatedError("Invalid credentials")
+  }
 
   if (await argon.verify(user.password, password)) {
     let payload = {
@@ -83,7 +87,7 @@ export const signin = async (req: Request, res: Response) => {
 
     res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      // secure: process.env.NODE_ENV === "production",
     })
     return res.status(200).json({ msg: "User logged in successfully" })
   } else {

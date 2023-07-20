@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -11,60 +8,56 @@ datasource db {
 }
 
 model User {
-  userId   Int     @id @default(autoincrement())
+  userId   Int      @id @default(autoincrement())
   username String
-  email    String  @unique
+  email    String   @unique
   password String
   role     String?
-
-  shops   Shop[]   @relation("shops_relation")
-  reviews Review[] @relation("reviews_to_user_relation")
+  reviews  Review[] @relation("reviews_to_user_relation")
+  shops    Shop[]   @relation("shops_relation")
 
   @@map("users")
 }
 
 model Shop {
-  shopId    Int      @id @default(autoincrement())
-  name      String   @unique
+  shopId    String    @id @default(uuid())
+  name      String    @unique @db.Citext
   tags      String[]
   shopImage String?
-
-  userId Int
-  user   User @relation("shops_relation", fields: [userId], references: [userId])
-
-  items Item[] @relation("item_to_shop_relation")
-  sections Section[] @relation("section_to_shop_relation")
+  userId    Int
+  items     Item[]    @relation("item_to_shop_relation")
+  sections  Section[] @relation("section_to_shop_relation")
+  user      User      @relation("shops_relation", fields: [userId], references: [userId])
 
   @@unique([shopId, userId])
   @@map("shops")
 }
 
 model Section {
-  sectionId Int @id @default(autoincrement())
-  text String?
-  imgUrls String[] 
-  order Int?
-
-  shopId Int
-  userId Int
-  shop Shop @relation("section_to_shop_relation", fields: [shopId, userId], references: [shopId, userId])
+  sectionId Int      @id @default(autoincrement())
+  text      String?
+  imgUrls   String[]
+  order     Int?
+  shopId    String
+  userId    Int
+  shop      Shop     @relation("section_to_shop_relation", fields: [shopId, userId], references: [shopId, userId])
 
   @@unique([order, shopId])
   @@map("sections")
 }
 
 model Item {
-  itemId         Int     @id @default(autoincrement())
+  itemId         Int      @id @default(autoincrement())
   name           String
-  price          Decimal @default(0) @db.Money
-  totalAmount    Int     @default(0)
-  reservedAmount Int     @default(0)
-
-  shopId Int
-  userId Int
-  shop   Shop @relation("item_to_shop_relation", fields: [shopId, userId], references: [shopId, userId])
-
-  reviews Review[] @relation("reviews_to_item_relation")
+  price          Decimal  @default(0) @db.Money
+  totalAmount    Int      @default(0)
+  reservedAmount Int      @default(0)
+  coverImg       String?
+  imgUrls        String[]
+  shopId         String
+  userId         Int
+  shop           Shop     @relation("item_to_shop_relation", fields: [shopId, userId], references: [shopId, userId])
+  reviews        Review[] @relation("reviews_to_item_relation")
 
   @@map("items")
 }
@@ -73,15 +66,13 @@ model Review {
   reviewId    Int      @id @default(autoincrement())
   rating      Int      @default(5)
   title       String   @db.VarChar(100)
-  description String   @db.VarChar(5000)
+  description String?  @db.VarChar(5000)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-
-  userId Int
-  user   User @relation("reviews_to_user_relation", fields: [userId], references: [userId])
-
-  itemId Int
-  item   Item @relation("reviews_to_item_relation", fields: [itemId], references: [itemId])
+  userId      Int
+  itemId      Int
+  item        Item     @relation("reviews_to_item_relation", fields: [itemId], references: [itemId])
+  user        User     @relation("reviews_to_user_relation", fields: [userId], references: [userId])
 
   @@unique([userId, itemId])
   @@map("reviews")

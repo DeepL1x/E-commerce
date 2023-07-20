@@ -1,11 +1,12 @@
 import { deleteUser, deleteUserById, getAllUsers, getUserByEmail, updateUser } from "../controllers/users"
 import { isAdmin, auth } from "../middlewares/auth"
 import express from "express"
+import Routes from "./routes"
 
 export default (router: express.Router) => {
-    router.get(`/${process.env.USERS_ROUTE}/all`, auth, isAdmin, getAllUsers)
-    router.get(`/${process.env.USERS_ROUTE}/:email`, auth, getUserByEmail)
-    router.put(`/${process.env.USERS_ROUTE}/`, auth, updateUser)
-    router.delete(`/${process.env.USERS_ROUTE}/`, auth, deleteUser)
-    router.delete(`/${process.env.USERS_ROUTE}/:id`, auth, isAdmin, deleteUserById)
+    router.get(`/${Routes.USERS}/all`, auth, isAdmin, getAllUsers)
+    router.get(`/${Routes.USERS}/:email`, auth, getUserByEmail)
+    router.put(`/${Routes.USERS}/`, auth, updateUser)
+    router.delete(`/${Routes.USERS}/`, auth, deleteUser)
+    router.delete(`/${Routes.USERS}/:id`, auth, isAdmin, deleteUserById)
 }

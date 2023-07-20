@@ -5,25 +5,27 @@ import {
   getSection,
   updateSection,
 } from "controllers/sections"
-import { Request, Router } from "express"
+import { Router } from "express"
 import { auth, isOwnerOfShop } from "middlewares/auth"
-import multer from "multer"
-
-const storage = multer.diskStorage({
-  destination: "uploads/",
-  filename: function (req: Request, file: Express.Multer.File, cb) {
-    //@ts-ignore
-    const fileName = "" + req.user.userId + "_" + Date.now()
-    cb(null, fileName)
-  },
-})
-
-const upload = multer({ storage: storage })
+import Routes from "./routes"
+import fileUpload from "../middlewares/fileUpload"
 
 export default (router: Router) => {
-  router.get("/sections/all", getAllSections)
-  router.get("/sections/:id", getSection)
-  router.post("/sections", auth, isOwnerOfShop, upload.fields, createSection)
-  router.put("/sections", auth, isOwnerOfShop, updateSection)
-  router.delete("/sections", auth, isOwnerOfShop, deleteSection)
+  router.get(`/${Routes.SECTIONS}/all`, getAllSections)
+  router.get(`/${Routes.SECTIONS}/:id`, getSection)
+  router.post(
+    `/${Routes.SECTIONS}`,
+    auth,
+    isOwnerOfShop,
+    fileUpload.array("images", 5),
+    createSection
+  )
+  router.put(
+    `/${Routes.SECTIONS}`,
+    auth,
+    isOwnerOfShop,
+    fileUpload.array("images", 5),
+    updateSection
+  )
+  router.delete(`/${Routes.SECTIONS}`, auth, isOwnerOfShop, deleteSection)
 }
