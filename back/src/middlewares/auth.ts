@@ -1,4 +1,4 @@
-import { PrismaClient, Review, User } from "@prisma/client"
+import { PrismaClient, Review, Shop, User } from "@prisma/client"
 import { UnauthenticatedError } from "../errors/unauthenticated"
 import { Request, Response, NextFunction } from "express"
 import jwt from "jsonwebtoken"
@@ -42,17 +42,22 @@ export const isOwnerOfShop = async (
 ) => {
   //@ts-ignore
   const user: User = req.user
-
+  const { shopId } = req.params
   if (user.role && user.role === "admin") {
     return next()
-  } else if (
-    user.userId !==
-    (
-      await prisma.shop.findUnique({
-        where: { shopId: req.body.shopId },
-      })
-    ).userId
-  ) {
+  }
+  let shop
+  if (shopId) {
+    shop = await prisma.shop.findUnique({
+      where: { shopId: shopId },
+    })
+  } else {
+    shop = await prisma.shop.findUnique({
+      where: { shopId: req.body.shopId },
+    })
+  }
+
+  if (shop && user.userId !== shop.userId) {
     throw new UnauthenticatedError("Not allowed to access this route")
   }
   return next()
@@ -65,7 +70,7 @@ export const isOwnerOfItem = async (
 ) => {
   //@ts-ignore
   const user: User = req.user
-
+  const { itemId } = req.params
   if (user.role && user.role === "admin") {
     return next()
   } else if (
@@ -73,7 +78,7 @@ export const isOwnerOfItem = async (
     (
       await prisma.item.findUnique({
         where: {
-          itemId: req.body.itemId,
+          itemId: Number(itemId),
         },
       })
     ).userId
@@ -91,13 +96,14 @@ export const isOwnerOfReview = async (
   //@ts-ignore
   const user: User = req.user
   const review: Review = req.body
+  const { reviewId } = req.params
   if (user.role && user.role === "admin") {
     return next()
   } else if (
     user.userId !==
     (
       await prisma.review.findUnique({
-        where: { reviewId: review.reviewId },
+        where: { reviewId: Number(reviewId) },
       })
     ).userId
   ) {

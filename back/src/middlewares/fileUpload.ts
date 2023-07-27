@@ -31,9 +31,9 @@ const fileFilter = (
     cb(new BadRequestError("File size is too large (max 2048 KB)"))
   }
   if (
-    file.fieldname === "gallery" &&
-    !req.body.fileIndexes &&
-    req.body.fileIndexes.length !== 0
+    file.fieldname === "gallery" && (
+    !req.body.fileIndexes ||
+    req.body.fileIndexes.length === 0)
   ) {
     cb(new BadRequestError("Missing file indexes"))
   }

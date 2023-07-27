@@ -17,32 +17,32 @@ export default (router: express.Router) => {
   router.get(`/${Routes.ITEMS}/:itemId/reviews`, itemValidation, getItemReviews)
   router.get(`/${Routes.ITEMS}/:itemId`, itemValidation, getItemById)
   router.post(
-    `/${Routes.ITEMS}`,
+    `/${Routes.ITEMS}/:shopId`,
     auth,
-    itemValidation,
     isOwnerOfShop,
     fileUpload.fields([
       { name: "cover", maxCount: 1 },
       { name: "gallery", maxCount: 8 },
     ]),
+    itemValidation,
     createItem
   )
   router.put(
-    `/${Routes.ITEMS}`,
+    `/${Routes.ITEMS}/:itemId`,
     auth,
-    itemValidation,
     isOwnerOfItem,
     fileUpload.fields([
       { name: "cover", maxCount: 1 },
       { name: "gallery", maxCount: 8 },
     ]),
+    itemValidation,
     updateItem
   )
   router.delete(
-    `/${Routes.ITEMS}`,
+    `/${Routes.ITEMS}/:itemId`,
     auth,
-    itemValidation,
     isOwnerOfItem,
+    itemValidation,
     deleteItem
   )
 }

@@ -17,25 +17,25 @@ export default (router: express.Router) => {
   router.get(`/${Routes.SHOPS}/:shopId/items`, shopValidation, getShopItems)
   router.get(`/${Routes.SHOPS}/:shopId/full`, shopValidation, getFullShop)
   router.post(
-    `/${Routes.SHOPS}/`,
+    `/${Routes.SHOPS}`,
     auth,
     fileUpload.single("image"),
     shopValidation,
     createShop
   )
   router.put(
-    `/${Routes.SHOPS}/`,
+    `/${Routes.SHOPS}/:shopId`,
     auth,
+    isOwnerOfShop,
     fileUpload.single("image"),
     shopValidation,
-    isOwnerOfShop,
     updateShop
   )
   router.delete(
-    `/${Routes.SHOPS}/`,
+    `/${Routes.SHOPS}/:shopId`,
     auth,
-    shopValidation,
     isOwnerOfShop,
+    shopValidation,
     deleteShop
   )
 }

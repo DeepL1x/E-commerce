@@ -13,14 +13,14 @@ export default (router: express.Router) => {
   router.get(`/${Routes.REVIEWS}/filter/`, getReviewsByFilter)
   router.post(`/${Routes.REVIEWS}/`, auth, reviewValidation, createReview)
   router.put(
-    `/${Routes.REVIEWS}/`,
+    `/${Routes.REVIEWS}/:reviewId`,
     auth,
     reviewValidation,
     isOwnerOfReview,
     updateReview
   )
   router.delete(
-    `/${Routes.REVIEWS}/`,
+    `/${Routes.REVIEWS}/:reviewId`,
     auth,
     reviewValidation,
     isOwnerOfReview,

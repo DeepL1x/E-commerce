@@ -5,7 +5,7 @@ import items from "./items"
 import reviews from "./reviews"
 import shops from "./shops"
 import imgs from "./imgs"
-
+import sections from "./sections"
 const router = express.Router()
 
 export default (): express.Router => {
@@ -14,6 +14,7 @@ export default (): express.Router => {
   items(router)
   reviews(router)
   shops(router)
+  sections(router)
   imgs(router)
   return router
 }

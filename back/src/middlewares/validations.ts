@@ -1,12 +1,12 @@
-import { PrismaClient, Review, Shop } from "@prisma/client"
+import { Review, Shop } from "@prisma/client"
 import { BadRequestError } from "../errors/bad-request"
 import { NextFunction, Request, Response } from "express"
-import Routes from "../routes/routes"
-import fs from "fs"
-const prisma = new PrismaClient()
 const shopNameRegEx = /^[A-Za-z0-9 ]*$/
 
 const validateShopName = (shopName: string) => {
+  if (shopName === "") {
+    throw new BadRequestError("Shop name can not be empty!")
+  }
   if (!shopNameRegEx.test(shopName)) {
     throw new BadRequestError(
       "Shop name can only contain latin letters and numbers"
@@ -20,13 +20,21 @@ const shopValidation = async (
   next: NextFunction
 ) => {
   const req_shop: Shop = req.body
+  const { shopId } = req.params
 
   if (req.method === "POST") {
-    if (!req_shop.name) {
+    if (req_shop.name === "") {
       throw new BadRequestError("Shop name is required")
     }
 
     validateShopName(req_shop.name)
+    //@ts-ignore
+    if (req_shop.tags === "") {
+      req_shop.tags = [] as string[]
+    } else if (req_shop.tags) {
+      //@ts-ignore
+      req_shop.tags = req_shop.tags.split(",")
+    }
 
     //@ts-ignore
     const user: User = req.user
@@ -35,11 +43,18 @@ const shopValidation = async (
   }
 
   if (req.method === "PUT" || req.method === "DELETE") {
-    if (!req_shop.shopId) {
+    if (!shopId) {
       throw new BadRequestError("Shop shopId is required")
     }
 
-    if (req_shop.name) {
+    //@ts-ignore
+    if (req_shop.tags === "") {
+      req_shop.tags = [] as string[]
+    } else if (req_shop.tags) {
+      //@ts-ignore
+      req_shop.tags = JSON.parse(req_shop.tags)
+    }
+    if (req_shop.name !== undefined) {
       validateShopName(req_shop.name)
     }
   }
@@ -59,19 +74,20 @@ const itemValidation = async (
   next: NextFunction
 ) => {
   const req_item = req.body
+  const { itemId } = req.params
+
   if (req.method === "POST") {
     if (!req_item.name) {
       throw new BadRequestError("Item name is required")
     }
-    if (!req_item.userId) {
-      throw new BadRequestError("Item userId is required")
-    }
     if (!req_item.shopId) {
       throw new BadRequestError("Item shopId is required")
     }
+    //@ts-ignore
+    req.body.userId = req.user.userId
   }
   if (req.method === "PUT" || req.method === "DELETE") {
-    if (!req_item.itemId) {
+    if (!itemId) {
       throw new BadRequestError("Item itemId is required")
     }
   }
@@ -90,13 +106,15 @@ const sectionValidation = async (
   next: NextFunction
 ) => {
   const req_section = req.body
+  const { sectionId } = req.params
+
   if (req.method === "POST") {
     if (!req_section.shopId) {
       throw new BadRequestError("Section shopId is required")
     }
   }
   if (req.method === "PUT" || req.method === "DELETE") {
-    if (!req_section.sectionId) {
+    if (!sectionId) {
       throw new BadRequestError("Section sectionId is required")
     }
   }
@@ -110,8 +128,10 @@ const reviewValidation = async (
   req: Request,
   res: Response,
   next: NextFunction
-  ) => {
-    const req_review: Review = req.body
+) => {
+  const req_review: Review = req.body
+  const { reviewId } = req.params
+
   if (req.method === "POST") {
     if (!req_review.title) {
       throw new BadRequestError("Review title is required")
@@ -121,7 +141,7 @@ const reviewValidation = async (
     }
   }
   if (req.method === "PUT" || req.method === "DELETE") {
-    if (!req_review.reviewId) {
+    if (!reviewId) {
       throw new BadRequestError("Review reviewId is required")
     }
   }
@@ -131,4 +151,4 @@ const reviewValidation = async (
   next()
 }
 
-export { shopValidation, itemValidation, sectionValidation, reviewValidation}
+export { shopValidation, itemValidation, sectionValidation, reviewValidation }

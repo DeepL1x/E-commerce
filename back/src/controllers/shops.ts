@@ -3,7 +3,7 @@ import { Request, Response } from "express"
 import { StatusCodes } from "http-status-codes"
 import Routes from "../routes/routes"
 import { NotFoundError } from "../errors/not-found"
-import { deleteFile } from "middlewares/fileUpload"
+import { deleteFile } from "../middlewares/fileUpload"
 
 const prisma = new PrismaClient()
 
@@ -14,6 +14,14 @@ export const getAllShops = async (req: Request, res: Response) => {
 
 export const createShop = async (req: Request, res: Response) => {
   const req_shop: Shop = req.body
+  const file = req.file as Express.Multer.File
+  console.log(file)
+
+  if (file) {
+    req_shop.shopImage =
+      `http://localhost:${process.env.PORT}/${process.env.API_URL}/${Routes.IMGS}/` +
+      file.filename
+  }
 
   const res_shop = await prisma.shop.create({
     data: req_shop,
@@ -23,27 +31,25 @@ export const createShop = async (req: Request, res: Response) => {
 
 export const updateShop = async (req: Request, res: Response) => {
   const req_shop: Shop = req.body
+  const { shopId } = req.params
   const file = req.file as Express.Multer.File
 
-  let actualShopId
   if (req_shop.name) {
-    actualShopId = req_shop.shopId
     req_shop.shopId = req_shop.name.toLocaleLowerCase().replace(" ", "-")
   }
 
-  const oldImg = await (
-    await prisma.shop.findUnique({ where: { shopId: actualShopId } })
-  ).shopImage
-
   if (file) {
+    const oldImg = (await prisma.shop.findUnique({ where: { shopId: shopId } }))
+      ?.shopImage
+
     deleteFile(oldImg.split("/").pop())
     req_shop.shopImage =
-      `http://localhost:${process.env.PORT}/${process.env.API_URL}/${Routes.IMGS}` +
+      `http://localhost:${process.env.PORT}/${process.env.API_URL}/${Routes.IMGS}/` +
       file.filename
   }
 
   const res_shop = await prisma.shop.update({
-    where: { shopId: actualShopId },
+    where: { shopId: shopId },
     data: req_shop,
   })
   return res.status(StatusCodes.OK).json(res_shop)
@@ -60,11 +66,13 @@ export const getShopsByUserId = async (req: Request, res: Response) => {
 }
 
 export const deleteShop = async (req: Request, res: Response) => {
-  const { shopId } = req.body
+  const { shopId } = req.params
   const deleted_shop = await prisma.shop.delete({
     where: { shopId: shopId },
   })
-  deleteFile(deleted_shop.shopImage.split("/").pop())
+  if (deleted_shop.shopImage) {
+    deleteFile(deleted_shop.shopImage.split("/").pop())
+  }
   return res.status(StatusCodes.OK).json(deleted_shop)
 }
 

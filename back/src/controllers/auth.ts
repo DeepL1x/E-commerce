@@ -37,6 +37,7 @@ export const signup = async (req: Request, res: Response) => {
     userId: user.userId,
     email: user.email,
     username: user.username,
+    role: user.role,
   }
 
   const token = jwt.sign(payload, process.env.JWT_SECRET, {
@@ -49,12 +50,12 @@ export const signup = async (req: Request, res: Response) => {
   })
   return res
     .status(StatusCodes.CREATED)
-    .json({ msg: "User created successfully" })
+    .json({ ...payload, msg: "User created successfully" })
 }
 
 export const signin = async (req: Request, res: Response) => {
   const { email, password } = req.body
-  
+
   if (!email && !password) {
     throw new BadRequestError("Please provide email and password")
   }
@@ -74,6 +75,7 @@ export const signin = async (req: Request, res: Response) => {
       userId: user.userId,
       email: user.email,
       username: user.username,
+      role: user.role,
     }
 
     if (user.role) {
@@ -89,7 +91,9 @@ export const signin = async (req: Request, res: Response) => {
       httpOnly: true,
       // secure: process.env.NODE_ENV === "production",
     })
-    return res.status(200).json({ msg: "User logged in successfully" })
+    return res
+      .status(200)
+      .json({ ...payload, msg: "User logged in successfully" })
   } else {
     throw new UnauthenticatedError("Invalid credentials")
   }

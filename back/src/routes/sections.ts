@@ -4,11 +4,12 @@ import {
   getAllSections,
   getSection,
   updateSection,
-} from "controllers/sections"
+} from "../controllers/sections"
 import { Router } from "express"
-import { auth, isOwnerOfShop } from "middlewares/auth"
+import { auth, isOwnerOfShop } from "../middlewares/auth"
 import Routes from "./routes"
 import fileUpload from "../middlewares/fileUpload"
+import { sectionValidation } from "../middlewares/validations"
 
 export default (router: Router) => {
   router.get(`/${Routes.SECTIONS}/all`, getAllSections)
@@ -16,16 +17,24 @@ export default (router: Router) => {
   router.post(
     `/${Routes.SECTIONS}`,
     auth,
-    isOwnerOfShop,
     fileUpload.array("images", 5),
+    sectionValidation,
+    isOwnerOfShop,
     createSection
   )
   router.put(
-    `/${Routes.SECTIONS}`,
+    `/${Routes.SECTIONS}/:sectionId`,
     auth,
     isOwnerOfShop,
     fileUpload.array("images", 5),
+    sectionValidation,
     updateSection
   )
-  router.delete(`/${Routes.SECTIONS}`, auth, isOwnerOfShop, deleteSection)
+  router.delete(
+    `/${Routes.SECTIONS}/:sectionId`,
+    auth,
+    isOwnerOfShop,
+    sectionValidation,
+    deleteSection
+  )
 }

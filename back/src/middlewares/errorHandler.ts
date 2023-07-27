@@ -28,7 +28,7 @@ export const errorHandlerMiddleware = (
       customError.statusCode = StatusCodes.BAD_REQUEST
     }
     else {
-      customError.msg = err.name
+      customError.msg = "Something went wrong try again later..."
     }
   }
 

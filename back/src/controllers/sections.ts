@@ -1,10 +1,9 @@
 import { PrismaClient, Section } from "@prisma/client"
 import e, { Request, Response } from "express"
 import { StatusCodes } from "http-status-codes"
-import fs from "fs"
 import dotenv from "dotenv"
-import { BadRequestError } from "errors/bad-request"
-import { deleteFile } from "middlewares/fileUpload"
+import { BadRequestError } from "../errors/bad-request"
+import { deleteFile } from "../middlewares/fileUpload"
 dotenv.config()
 
 const prisma = new PrismaClient()
@@ -42,6 +41,7 @@ export const createSection = async (req: Request, res: Response) => {
 
 export const updateSection = async (req: Request, res: Response) => {
   const req_section: Section = req.body
+  
   const fileIndexes = req.body.fileIndexes as number[]
   const files = req.files as Express.Multer.File[]
 
@@ -87,11 +87,12 @@ export const deleteSection = async (req: Request, res: Response) => {
     await prisma.section.findUnique({
       where: { sectionId: sectionId },
     })
-  ).imgUrls
-
-  urls.forEach((url) => {
-    deleteFile(url.split("/").pop())
-  })
+  )?.imgUrls
+  if (urls) {
+    urls.forEach((url) => {
+      deleteFile(url.split("/").pop())
+    })
+  }
   await prisma.section.delete({ where: { sectionId: sectionId } })
   return res.status(StatusCodes.OK).end()
 }

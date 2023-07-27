@@ -8,14 +8,17 @@ const prisma = new PrismaClient()
 
 export const createItem = async (req: Request, res: Response) => {
   const req_item: Item = req.body
+  const { shopId } = req.params
   const created_item: Item = await prisma.item.create({
-    data: req_item,
+    data: { ...req_item, shopId },
   })
   return res.status(StatusCodes.CREATED).json(created_item)
 }
 
 export const updateItem = async (req: Request, res: Response) => {
   const req_item: Item = req.body
+  const { itemId } = req.params
+
   const fileIndexes = req.body.fileIndexes as number[]
   //@ts-ignore
   const cover = req.files["cover"][0] as Express.Multer.File
@@ -25,10 +28,12 @@ export const updateItem = async (req: Request, res: Response) => {
   if (cover) {
     const oldCover = (
       await prisma.item.findUnique({
-        where: { itemId: req_item.itemId },
+        where: { itemId: Number(itemId) },
       })
     ).coverImg
-    deleteFile(oldCover.split("/").pop())
+    if (oldCover) {
+      deleteFile(oldCover.split("/").pop())
+    }
     req_item.coverImg =
       `http://localhost:${process.env.PORT}/${process.env.IMG_STORAGE_URL}/` +
       cover.filename
@@ -50,7 +55,7 @@ export const updateItem = async (req: Request, res: Response) => {
     )
     const oldUrls = (
       await prisma.item.findUnique({
-        where: { itemId: req_item.itemId },
+        where: { itemId: Number(itemId) },
       })
     ).imgUrls
 
@@ -63,7 +68,7 @@ export const updateItem = async (req: Request, res: Response) => {
   }
   const updated_item: Item = await prisma.item.update({
     where: {
-      itemId: req_item.itemId,
+      itemId: Number(itemId),
     },
     data: req_item,
   })
@@ -81,10 +86,10 @@ export const getItemById = async (req: Request, res: Response) => {
 }
 
 export const deleteItem = async (req: Request, res: Response) => {
-  const { itemId } = req.body
+  const { itemId } = req.params
   const deleted_item = await prisma.item.delete({
     where: {
-      itemId: itemId,
+      itemId: Number(itemId),
     },
   })
   deleteFile(deleted_item.coverImg.split("/").pop())
