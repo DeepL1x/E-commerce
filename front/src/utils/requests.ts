@@ -1,6 +1,8 @@
 import axios from "axios"
 import { Filter } from "types"
 
+axios.defaults.withCredentials = true
+
 const asyncWrapper = (fn: Function) => {
   return async (...args: any[]) => {
     try {
@@ -23,7 +25,23 @@ export const getDataWithParams = asyncWrapper(
   }
 )
 
-export const postData = asyncWrapper(async (url: string, data: any) => {
-  const res = (await axios.post(url, data)).data
-  return res
-})
+export const postData = asyncWrapper(
+  async (url: string, data: any, options?: Object) => {
+    const res = await axios.post(url, data, {
+      ...options,
+      withCredentials: true,
+    })
+
+    return res.data
+  }
+)
+export const putData = asyncWrapper(
+  async (url: string, data: any, options?: Object) => {
+    const res = await axios.put(url, data, {
+      ...options,
+      withCredentials: true,
+    })
+
+    return res.data
+  }
+)

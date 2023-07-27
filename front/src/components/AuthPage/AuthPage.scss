@@ -1,0 +1,15 @@
+.auth-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 50vh;
+    width: 100%;
+    .auth-method-button{
+        cursor: pointer;
+        text-decoration: underline;
+        font-size: 12px;
+        color: gray;
+        font-style: italic;
+    }
+}

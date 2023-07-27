@@ -1,4 +1,7 @@
 back/node_modules
+back/uploads/**
+back/prisma/migrations
+!back/prisma/migrations/migration_lock.toml
 *.env*
 /dist
 package-lock.json

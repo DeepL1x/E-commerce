@@ -1,15 +1,21 @@
 import "./App.scss"
 import Header from "components/Header/Header"
-import MainPage from "components/MainPage/MainPage"
+import AllRoutes from "Routes/Routes"
+import AuthContextProvider from "contexts/AuthContext"
 import MobileContextProvider from "contexts/MobileContext"
+import { BrowserRouter } from "react-router-dom"
 
 function App() {
   return (
     <>
-      <MobileContextProvider>
-        <Header />
-        <MainPage />
-      </MobileContextProvider>
+      <BrowserRouter>
+        <MobileContextProvider>
+          <AuthContextProvider>
+            <Header />
+            <AllRoutes />
+          </AuthContextProvider>
+        </MobileContextProvider>
+      </BrowserRouter>
     </>
   )
 }

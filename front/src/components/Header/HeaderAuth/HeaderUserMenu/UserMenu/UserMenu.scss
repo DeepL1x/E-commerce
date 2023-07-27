@@ -1,0 +1,26 @@
+@import "../../../../../../assets/colors.scss";
+
+.user-menu-container {
+  position: absolute;
+  left: -50px;
+  top: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: left;
+  background: $background2;
+  .user-menu-item {
+    display: flex;
+    align-items: center;
+    color: black;
+    font-size: 20px;
+    font-weight: 500;
+    img {
+        max-height: 36px;
+        max-width: 36px;
+    }
+    &:last-child{
+        margin-top: 10px;
+    }
+  }
+}

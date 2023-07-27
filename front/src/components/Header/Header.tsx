@@ -1,12 +1,12 @@
 import { MobileContext } from "../../contexts/MobileContext"
 import "./Header.scss"
-import HeaderLogin from "./HeaderLogin/HeaderLogin"
 import HeaderLogo from "./HeaderLogo/HeaderLogo"
 import HeaderSearch from "./HeaderSearch/HeaderSearch"
 import { useContext } from "react"
+import HeaderAuth from "./HeaderAuth/HeaderAuth"
+
 const Header = () => {
   const { isMobile } = useContext(MobileContext)
-
   return (
     <header>
       {isMobile ? (
@@ -17,7 +17,7 @@ const Header = () => {
         <HeaderLogo />
       )}
       <HeaderSearch />
-      <HeaderLogin />
+      <HeaderAuth />
     </header>
   )
 }

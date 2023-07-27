@@ -1,0 +1,10 @@
+.header-user-menu-container {
+  position: relative;
+  display: flex;
+  width: 100px;
+  align-items: center;
+  justify-content: right;
+  .user-credentials {
+    font-size: 20px;
+  }
+}
