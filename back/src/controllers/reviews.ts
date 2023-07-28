@@ -15,8 +15,7 @@ export const getReviewsByFilter = async (req: Request, res: Response) => {
 
 export const createReview = async (req: Request, res: Response) => {
   const req_review: Review = req.body
-  //@ts-ignore
-  req_review.userId = req.user.userId
+  req_review.userId = res.locals.user.userId
   const created_review = await prisma.review.create({
     data: req_review,
   })

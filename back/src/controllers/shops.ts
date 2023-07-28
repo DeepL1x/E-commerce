@@ -4,6 +4,7 @@ import { StatusCodes } from "http-status-codes"
 import Routes from "../routes/routes"
 import { NotFoundError } from "../errors/not-found"
 import { deleteFile } from "../middlewares/fileUpload"
+import { UnauthenticatedError } from "../errors/unauthenticated"
 
 const prisma = new PrismaClient()
 
@@ -108,4 +109,28 @@ export const getFullShop = async (req: Request, res: Response) => {
     },
   })
   return res.status(StatusCodes.OK).json(shop)
+}
+
+export const getShopAccessStatus = async (req: Request, res: Response) => {
+  const { shopId } = req.params
+  const user: User = res.locals.user
+  const shopOwnerId: number = (
+    await prisma.shop.findUnique({
+      where: {
+        shopId: shopId,
+      },
+      include: {
+        user: {
+          select: {
+            userId: true,
+          },
+        },
+      },
+    })
+  ).user.userId
+  if (user.userId !== shopOwnerId) {
+    throw new UnauthenticatedError("Unauthorized to access this route")
+  }
+
+  return res.sendStatus(StatusCodes.OK)
 }

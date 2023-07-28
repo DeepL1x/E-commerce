@@ -1,4 +1,4 @@
-import { Review, Shop } from "@prisma/client"
+import { Review, Shop, User } from "@prisma/client"
 import { BadRequestError } from "../errors/bad-request"
 import { NextFunction, Request, Response } from "express"
 const shopNameRegEx = /^[A-Za-z0-9 ]*$/
@@ -36,8 +36,7 @@ const shopValidation = async (
       req_shop.tags = req_shop.tags.split(",")
     }
 
-    //@ts-ignore
-    const user: User = req.user
+    const user: User = res.locals.user
     req_shop.userId = user.userId
     req_shop.shopId = req_shop.name.toLocaleLowerCase().replace(" ", "-")
   }
@@ -83,8 +82,7 @@ const itemValidation = async (
     if (!req_item.shopId) {
       throw new BadRequestError("Item shopId is required")
     }
-    //@ts-ignore
-    req.body.userId = req.user.userId
+    req.body.userId = res.locals.user.userId
   }
   if (req.method === "PUT" || req.method === "DELETE") {
     if (!itemId) {
@@ -112,14 +110,13 @@ const sectionValidation = async (
     if (!req_section.shopId) {
       throw new BadRequestError("Section shopId is required")
     }
+    req.body.userId = res.locals.user.userId
   }
   if (req.method === "PUT" || req.method === "DELETE") {
     if (!sectionId) {
       throw new BadRequestError("Section sectionId is required")
     }
   }
-  //@ts-ignore
-  req.body.userId = req.user.userId
 
   next()
 }
@@ -135,6 +132,7 @@ const reviewValidation = async (
   if (req.method === "POST") {
     if (!req_review.title) {
       throw new BadRequestError("Review title is required")
+      req.body.userId = res.locals.user.userId
     }
     if (!req_review.itemId) {
       throw new BadRequestError("Review itemId is required")
@@ -145,8 +143,6 @@ const reviewValidation = async (
       throw new BadRequestError("Review reviewId is required")
     }
   }
-  //@ts-ignore
-  req.body.userId = req.user.userId
 
   next()
 }

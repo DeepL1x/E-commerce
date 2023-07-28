@@ -1,4 +1,4 @@
-import { PrismaClient, Shop } from "@prisma/client"
+import { PrismaClient, Shop, User } from "@prisma/client"
 import { Request, Response } from "express"
 import { StatusCodes } from "http-status-codes"
 
@@ -19,8 +19,7 @@ export const getUserByEmail = async (req: Request, res: Response) => {
 }
 
 export const getUserShops = async (req: Request, res: Response) => {
-  //@ts-ignore
-  const user: User = req.user
+  const user: User = res.locals.user
 
   const userShops: Shop[] = (
     await prisma.user.findUnique({
@@ -35,8 +34,7 @@ export const getUserShops = async (req: Request, res: Response) => {
 
 export const updateUser = async (req: Request, res: Response) => {
   const { username } = req.body
-  //@ts-ignore
-  const { email } = req.user.email
+  const { email } = res.locals.user
 
   const user = await prisma.user.update({
     where: { email: email },
@@ -46,8 +44,7 @@ export const updateUser = async (req: Request, res: Response) => {
 }
 
 export const deleteUser = async (req: Request, res: Response) => {
-  //@ts-ignore
-  const userId = number(req.user.userId)
+  const userId = Number(res.locals.userId)
 
   const user = await prisma.user.delete({
     where: { userId: userId },

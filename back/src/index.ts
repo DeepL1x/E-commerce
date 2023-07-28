@@ -6,6 +6,7 @@ import cookieParser from "cookie-parser"
 import { auth } from "./middlewares/auth"
 import { errorHandlerMiddleware } from "./middlewares/errorHandler"
 import cors from "cors"
+import { StatusCodes } from "http-status-codes"
 dotenv.config()
 
 const app = express()
@@ -23,11 +24,7 @@ app.use(`/${process.env.API_URL}`, router())
 app.get(
   `/${process.env.API_URL}/hello`,
   auth,
-  (req: express.Request, res: express.Response) =>
-    res.send(
-      // @ts-ignore
-      req.user
-    )
+  (req: express.Request, res: express.Response) => res.status(StatusCodes.OK)
 )
 
 app.use(errorHandlerMiddleware)

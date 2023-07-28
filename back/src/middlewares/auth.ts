@@ -15,6 +15,7 @@ export const auth = (req: Request, res: Response, next: NextFunction) => {
   try {
     const payload = jwt.verify(token, process.env.JWT_SECRET)
 
+    res.locals.user = payload
     //@ts-ignore
     req.user = payload
 
@@ -25,8 +26,7 @@ export const auth = (req: Request, res: Response, next: NextFunction) => {
 }
 
 export const isAdmin = (req: Request, res: Response, next: NextFunction) => {
-  //@ts-ignore
-  const user: User = req.user
+  const user: User = res.locals.user
 
   if (!user.role || user.role !== "admin") {
     throw new UnauthenticatedError("Not allowed to access this route")
@@ -40,8 +40,8 @@ export const isOwnerOfShop = async (
   res: Response,
   next: NextFunction
 ) => {
-  //@ts-ignore
-  const user: User = req.user
+  const user: User = res.locals.user
+
   const { shopId } = req.params
   if (user.role && user.role === "admin") {
     return next()
@@ -68,8 +68,7 @@ export const isOwnerOfItem = async (
   res: Response,
   next: NextFunction
 ) => {
-  //@ts-ignore
-  const user: User = req.user
+  const user: User = res.locals.user
   const { itemId } = req.params
   if (user.role && user.role === "admin") {
     return next()
@@ -93,9 +92,7 @@ export const isOwnerOfReview = async (
   res: Response,
   next: NextFunction
 ) => {
-  //@ts-ignore
-  const user: User = req.user
-  const review: Review = req.body
+  const user: User = res.locals.user
   const { reviewId } = req.params
   if (user.role && user.role === "admin") {
     return next()
