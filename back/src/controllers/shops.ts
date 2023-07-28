@@ -15,7 +15,6 @@ export const getAllShops = async (req: Request, res: Response) => {
 export const createShop = async (req: Request, res: Response) => {
   const req_shop: Shop = req.body
   const file = req.file as Express.Multer.File
-  console.log(file)
 
   if (file) {
     req_shop.shopImage =

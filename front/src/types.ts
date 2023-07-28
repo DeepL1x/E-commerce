@@ -36,8 +36,8 @@ export type TItemCard = {
 }
 
 export type TItem = TItemCard & {
-  cover?: File
-  gallery?: File[]
+  cover?: Blob
+  gallery?: Blob[]
   imgUrls: string[]
-  imgIndexes?: number[]
+  indexes?: number[]
 }

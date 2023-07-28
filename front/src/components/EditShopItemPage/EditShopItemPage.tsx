@@ -27,9 +27,6 @@ const EditShopItemPage = () => {
       getData(API + `/items/${itemId}`).then((res: TItem) => {
         if (res) {
           setData(res)
-          setModified((draft: TItem) => {
-            draft.shopId = res.shopId
-          })
         }
       })
     } else {
@@ -45,14 +42,13 @@ const EditShopItemPage = () => {
     const dataToSend = new FormData()
     for (const key in modified) {
       if (modified[key as keyof TItem]) {
-        if (key === "cover") {
-          dataToSend.append(key, modified[key as keyof TItem] as Blob)
-        } else if (key === "gallery") {
-          modified.gallery?.forEach((file: Blob) =>
-            dataToSend.append(key, file)
-          )
-        } else if (key !== "coverImg" && key !== "imgUrls") {
-          if (key === "imgIndexes") {
+        if (
+          key !== "coverImg" &&
+          key !== "imgUrls" &&
+          key !== "gallery" &&
+          key !== "cover"
+        ) {
+          if (key === "indexes") {
             dataToSend.append(key, JSON.stringify(modified[key as keyof TItem]))
           } else {
             dataToSend.append(key, modified[key as keyof TItem] as string)
@@ -60,7 +56,16 @@ const EditShopItemPage = () => {
         }
       }
     }
-
+    if (modified.cover) {
+      dataToSend.append("cover", modified.cover)
+    }
+    if (modified.gallery) {
+      for (const img of modified.gallery) {
+        if (img) {
+          dataToSend.append("gallery", img as Blob)
+        }
+      }
+    }
     for (var key of dataToSend.entries()) {
       console.log(key[0] + ", " + key[1])
     }
@@ -76,6 +81,9 @@ const EditShopItemPage = () => {
             setModified({} as TItem)
           }
         })
+        .catch(() => {
+          alert("Something went wrong")
+        })
         .finally(() => {
           setIsSaving(false)
         })
@@ -90,6 +98,9 @@ const EditShopItemPage = () => {
             form.current?.reset()
             navigate(`/user/${res.shopId}/${res.itemId}`)
           }
+        })
+        .catch(() => {
+          alert("Something went wrong")
         })
         .finally(() => {
           setIsSaving(false)
@@ -111,7 +122,7 @@ const EditShopItemPage = () => {
     >
       <div className="top-section">
         <EditItemSlider
-          {...data}
+          data={data}
           isSaving={isSaving}
           setModified={setModified}
           modified={modified}

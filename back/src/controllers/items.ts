@@ -19,9 +19,12 @@ export const updateItem = async (req: Request, res: Response) => {
   const req_item: Item = req.body
   const { itemId } = req.params
 
-  const fileIndexes = req.body.fileIndexes as number[]
+  const fileIndexes = req.body.indexes as number[]
   //@ts-ignore
-  const cover = req.files["cover"][0] as Express.Multer.File
+  const cover = req.files["cover"]
+    ? //@ts-ignore
+      (req.files["cover"][0] as Express.Multer.File)
+    : null
   //@ts-ignore
   const files = req.files["gallery"] as Express.Multer.File[]
 
@@ -39,38 +42,44 @@ export const updateItem = async (req: Request, res: Response) => {
       cover.filename
   }
 
-  if (fileIndexes && files) {
-    const MaxIndex = 8
+  if (fileIndexes) {
+    //@ts-ignore
+    delete req_item.indexes
+    if (files) {
+      const MaxIndex = 8
 
-    fileIndexes.forEach((value) => {
-      if (value >= MaxIndex) {
-        throw new BadRequestError("File index is out of range")
-      }
-    })
-
-    const newImgUrls = files.map(
-      (file) =>
-        `http://localhost:${process.env.PORT}/${process.env.IMG_STORAGE_URL}/` +
-        file.filename
-    )
-    const oldUrls = (
-      await prisma.item.findUnique({
-        where: { itemId: Number(itemId) },
+      fileIndexes.forEach((value) => {
+        if (value >= MaxIndex) {
+          throw new BadRequestError("File index is out of range")
+        }
       })
-    ).imgUrls
 
-    fileIndexes.forEach((value: number, index: number) => {
-      deleteFile(oldUrls[value].split("/").pop())
-      oldUrls[value] = newImgUrls[index]
-    })
+      const newImgUrls = files.map(
+        (file) =>
+          `http://localhost:${process.env.PORT}/${process.env.IMG_STORAGE_URL}/` +
+          file.filename
+      )
+      const oldUrls = (
+        await prisma.item.findUnique({
+          where: { itemId: Number(itemId) },
+        })
+      ).imgUrls
 
-    req_item.imgUrls = oldUrls
+      fileIndexes.forEach((value: number, index: number) => {
+        if (oldUrls[value]) {
+          deleteFile(oldUrls[value].split("/").pop())
+        }
+        oldUrls[value] = newImgUrls[index]
+      })
+
+      req_item.imgUrls = oldUrls
+    }
   }
   const updated_item: Item = await prisma.item.update({
     where: {
       itemId: Number(itemId),
     },
-    data: req_item,
+    data: req_item as Item,
   })
   return res.status(StatusCodes.OK).json(updated_item)
 }
@@ -110,7 +119,6 @@ export const getItemsByFilter = async (req: Request, res: Response) => {
 
 export const getItemReviews = async (req: Request, res: Response) => {
   const { itemId } = req.params
-  console.log(itemId)
 
   const reviews: Review[] = (
     await prisma.item.findUnique({
