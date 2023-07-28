@@ -1,6 +1,6 @@
 import { useState, useContext } from "react"
 import "./SigninPage.scss"
-import { redirect, useNavigate } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 import { AuthContext } from "contexts/AuthContext"
 
 const SigninPage = () => {
@@ -8,7 +8,7 @@ const SigninPage = () => {
   const [password, setPassword] = useState("")
   const { signIn } = useContext(AuthContext)
   const navigate = useNavigate()
-  
+
   const handleFromSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     signIn(email, password).then((res) => {

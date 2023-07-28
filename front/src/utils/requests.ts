@@ -1,47 +1,48 @@
-import axios from "axios"
+import axios, { AxiosError } from "axios"
 import { Filter } from "types"
 
 axios.defaults.withCredentials = true
 
+const myAxios = axios.create()
+myAxios.defaults.withCredentials = true
+myAxios.interceptors.response.use(
+  (response) => {
+    return Promise.resolve(response.data)
+  },
+  (error: AxiosError) => {
+    return Promise.reject(error)
+  }
+)
+
 const asyncWrapper = (fn: Function) => {
   return async (...args: any[]) => {
-    try {
       return await fn(...args)
-    } catch (error) {
-      console.log(error)
-    }
   }
 }
 
 export const getData = asyncWrapper(async (url: string) => {
-  const data = (await axios.get(url)).data
-  return data
+  return myAxios.get(url)
 })
 
 export const getDataWithParams = asyncWrapper(
   async (url: string, params: Filter) => {
-    const data = (await axios.get(url, { params: params })).data
-    return data
+    return myAxios.get(url, { params: params })
   }
 )
 
 export const postData = asyncWrapper(
   async (url: string, data: any, options?: Object) => {
-    const res = await axios.post(url, data, {
+    return myAxios.post(url, data, {
       ...options,
       withCredentials: true,
     })
-
-    return res.data
   }
 )
 export const putData = asyncWrapper(
   async (url: string, data: any, options?: Object) => {
-    const res = await axios.put(url, data, {
+    return myAxios.put(url, data, {
       ...options,
       withCredentials: true,
     })
-
-    return res.data
   }
 )

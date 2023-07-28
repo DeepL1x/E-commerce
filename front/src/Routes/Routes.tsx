@@ -7,6 +7,7 @@ import ShopPage from "components/ShopPage/ShopPage"
 import UserShopItemsPage from "components/UserShopItemsPage/UserShopItemsPage"
 import UserShopsPage from "components/UserShopsPage/UserShopsPage"
 import { Route, Routes } from "react-router-dom"
+import ProtectedRoute from "./ProtectedRoute/ProtectedRoute"
 
 const AllRoutes = () => {
   return (
@@ -17,10 +18,38 @@ const AllRoutes = () => {
       <Route path="/shops/:shopId/items" element={<ShopItemsPage />} />
       <Route path="/user/shops" element={<UserShopsPage />} />
       <Route path="/user/add-shop" element={<EditShopPage />} />
-      <Route path="/user/:shopId" element={<EditShopPage />} />
-      <Route path="/user/:shopId/items" element={<UserShopItemsPage />} />
-      <Route path="/user/:shopId/add-item" element={<EditShopItemPage />} />
-      <Route path="/user/:shopId/:itemId" element={<EditShopItemPage />} />
+      <Route
+        path="/user/:shopId"
+        element={
+          <ProtectedRoute>
+            <EditShopPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/user/:shopId/items"
+        element={
+          <ProtectedRoute>
+            <UserShopItemsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/user/:shopId/add-item"
+        element={
+          <ProtectedRoute>
+            <EditShopItemPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/user/:shopId/:itemId"
+        element={
+          <ProtectedRoute>
+            <EditShopItemPage />
+          </ProtectedRoute>
+        }
+      />
     </Routes>
   )
 }

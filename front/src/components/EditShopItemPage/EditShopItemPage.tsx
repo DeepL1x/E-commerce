@@ -66,9 +66,9 @@ const EditShopItemPage = () => {
         }
       }
     }
-    for (var key of dataToSend.entries()) {
-      console.log(key[0] + ", " + key[1])
-    }
+    // for (var key of dataToSend.entries()) {
+    //   console.log(key[0] + ", " + key[1])
+    // }
 
     if (itemId) {
       putData(API + `/items/${itemId}`, dataToSend, {
