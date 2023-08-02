@@ -3,12 +3,24 @@ import { BadRequestError } from "../errors/bad-request"
 import { Request, Response } from "express"
 import { StatusCodes } from "http-status-codes"
 import { deleteFile } from "../middlewares/fileUpload"
+import { TItem } from "types"
+import { NotFoundError } from "errors"
 
 const prisma = new PrismaClient()
 
 export const createItem = async (req: Request, res: Response) => {
-  const req_item: Item = req.body
+  const fileIndexes = req.body.indexes as number[]
+  delete req.body.indexes
+  const deleteIndexes = req.body.deleteIndexes as number[]
+  delete req.body.deleteIndexes
+  const req_item = req.body as Item
   const { shopId } = req.params
+  const files = req.files as { [fieldname: string]: Express.Multer.File[] }
+  const cover = files["cover"] ? files["cover"][0] : null
+  const gallery = files["galley"]
+
+  await manageItemFiles(cover, gallery, fileIndexes, req_item, deleteIndexes)
+
   const created_item: Item = await prisma.item.create({
     data: { ...req_item, shopId },
   })
@@ -16,65 +28,29 @@ export const createItem = async (req: Request, res: Response) => {
 }
 
 export const updateItem = async (req: Request, res: Response) => {
+  const fileIndexes = req.body.indexes as number[]
+  delete req.body.indexes
+  const deleteIndexes = req.body.deleteIndexes as number[]
+  delete req.body.deleteIndexes
+  const deleteCover = req.body.deleteCover as boolean
+  delete req.body.deleteCover
   const req_item: Item = req.body
   const { itemId } = req.params
+  const files = req.files as { [fieldname: string]: Express.Multer.File[] }
 
-  const fileIndexes = req.body.indexes as number[]
-  //@ts-ignore
-  const cover = req.files["cover"]
-    ? //@ts-ignore
-      (req.files["cover"][0] as Express.Multer.File)
-    : null
-  //@ts-ignore
-  const files = req.files["gallery"] as Express.Multer.File[]
+  const cover = files["cover"] ? files["cover"][0] : null
+  const gallery = files["galley"]
 
-  if (cover) {
-    const oldCover = (
-      await prisma.item.findUnique({
-        where: { itemId: Number(itemId) },
-      })
-    ).coverImg
-    if (oldCover) {
-      deleteFile(oldCover.split("/").pop())
-    }
-    req_item.coverImg =
-      `http://localhost:${process.env.PORT}/${process.env.IMG_STORAGE_URL}/` +
-      cover.filename
-  }
+  await manageItemFiles(
+    cover,
+    gallery,
+    fileIndexes,
+    req_item,
+    deleteIndexes,
+    itemId,
+    deleteCover
+  )
 
-  if (fileIndexes) {
-    //@ts-ignore
-    delete req_item.indexes
-    if (files) {
-      const MaxIndex = 8
-
-      fileIndexes.forEach((value) => {
-        if (value >= MaxIndex) {
-          throw new BadRequestError("File index is out of range")
-        }
-      })
-
-      const newImgUrls = files.map(
-        (file) =>
-          `http://localhost:${process.env.PORT}/${process.env.IMG_STORAGE_URL}/` +
-          file.filename
-      )
-      const oldUrls = (
-        await prisma.item.findUnique({
-          where: { itemId: Number(itemId) },
-        })
-      ).imgUrls
-
-      fileIndexes.forEach((value: number, index: number) => {
-        if (oldUrls[value]) {
-          deleteFile(oldUrls[value].split("/").pop())
-        }
-        oldUrls[value] = newImgUrls[index]
-      })
-
-      req_item.imgUrls = oldUrls
-    }
-  }
   const updated_item: Item = await prisma.item.update({
     where: {
       itemId: Number(itemId),
@@ -91,6 +67,9 @@ export const getItemById = async (req: Request, res: Response) => {
       itemId: Number(itemId),
     },
   })
+  if (!item) {
+    throw new NotFoundError("Item not found")
+  }
   return res.status(StatusCodes.OK).json(item)
 }
 
@@ -101,10 +80,14 @@ export const deleteItem = async (req: Request, res: Response) => {
       itemId: Number(itemId),
     },
   })
-  deleteFile(deleted_item.coverImg.split("/").pop())
-  deleted_item.imgUrls.forEach((url) => {
-    deleteFile(url.split("/").pop())
-  })
+  if (deleted_item.coverImg) {
+    deleteFile(deleted_item.coverImg.split("/").pop())
+  }
+  if (deleted_item.imgUrls) {
+    deleted_item.imgUrls.forEach((url) => {
+      deleteFile(url.split("/").pop())
+    })
+  }
   return res.status(StatusCodes.OK).json({ message: "Item deleted" })
 }
 
@@ -119,16 +102,114 @@ export const getItemsByFilter = async (req: Request, res: Response) => {
 
 export const getItemReviews = async (req: Request, res: Response) => {
   const { itemId } = req.params
-
-  const reviews: Review[] = (
-    await prisma.item.findUnique({
-      where: {
-        itemId: Number(itemId),
-      },
-      include: {
-        reviews: true,
-      },
-    })
-  ).reviews
+  const item = await prisma.item.findUnique({
+    where: {
+      itemId: Number(itemId),
+    },
+    include: {
+      reviews: true,
+    },
+  })
+  if (!item) {
+    throw new NotFoundError("Item not found")
+  }
+  const reviews = item.reviews
   return res.status(StatusCodes.OK).json(reviews)
+}
+
+const manageItemFiles = async (
+  cover: Express.Multer.File | null,
+  files: Express.Multer.File[] | null,
+  fileIndexes: number[] | null,
+  item: Item,
+  deleteIndexes: number[],
+  itemId?: string,
+  deleteCover?: boolean
+) => {
+  if (cover) {
+    if (itemId) {
+      const oldCover = (
+        await prisma.item.findUnique({
+          where: { itemId: Number(itemId) },
+        })
+      ).coverImg
+      if (oldCover) {
+        deleteFile(oldCover.split("/").pop())
+      }
+    }
+    item.coverImg =
+      `http://localhost:${process.env.PORT}/${process.env.IMG_STORAGE_URL}/` +
+      cover.filename
+  }
+
+  if (itemId) {
+    if (fileIndexes && fileIndexes.length > 0) {
+      const MaxIndex = 8
+      fileIndexes.forEach((value) => {
+        if (value >= MaxIndex) {
+          throw new BadRequestError("File index is out of range")
+        }
+      })
+
+      if (files && files.length > 0) {
+        const oldUrls = (
+          await prisma.item.findUnique({
+            where: { itemId: Number(itemId) },
+          })
+        ).imgUrls
+
+        const newImgUrls = files.map(
+          (file) =>
+            `http://localhost:${process.env.PORT}/${process.env.IMG_STORAGE_URL}/` +
+            file.filename
+        )
+
+        fileIndexes.forEach((value: number, index: number) => {
+          if (oldUrls[value]) {
+            deleteFile(oldUrls[value].split("/").pop())
+          }
+          oldUrls[value] = newImgUrls[index] ? newImgUrls[index] : null
+        })
+        item.imgUrls = oldUrls
+      }
+    }
+
+    if (deleteIndexes && deleteIndexes.length > 0) {
+      const oldUrls = (
+        await prisma.item.findUnique({
+          where: { itemId: Number(itemId) },
+        })
+      ).imgUrls
+
+      deleteIndexes.forEach((value: number) => {
+        if (oldUrls[value]) {
+          deleteFile(oldUrls[value].split("/").pop())
+        }
+      })
+
+      item.imgUrls = oldUrls.filter(
+        (_, index) => !deleteIndexes.includes(index)
+      )
+    }
+    if (deleteCover) {
+      item.coverImg = null
+      const oldCover = (
+        await prisma.item.findUnique({
+          where: { itemId: Number(itemId) },
+        })
+      ).coverImg
+      if (oldCover) {
+        deleteFile(oldCover.split("/").pop())
+      }
+    }
+  } else {
+    if (files && files.length > 0) {
+      const newImgUrls = files.map(
+        (file) =>
+          `http://localhost:${process.env.PORT}/${process.env.IMG_STORAGE_URL}/` +
+          file.filename
+      )
+      item.imgUrls = newImgUrls
+    }
+  }
 }

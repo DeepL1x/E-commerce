@@ -1,6 +1,7 @@
 import { Review, Shop, User } from "@prisma/client"
 import { BadRequestError } from "../errors/bad-request"
 import { NextFunction, Request, Response } from "express"
+import { TShop } from "types"
 const shopNameRegEx = /^[A-Za-z0-9 ]*$/
 
 const validateShopName = (shopName: string) => {
@@ -28,12 +29,9 @@ const shopValidation = async (
     }
 
     validateShopName(req_shop.name)
-    //@ts-ignore
-    if (req_shop.tags === "") {
-      req_shop.tags = [] as string[]
-    } else if (req_shop.tags) {
-      //@ts-ignore
-      req_shop.tags = req_shop.tags.split(",")
+    if (req_shop.tags && req_shop.tags.length > 0) {
+      const tags = req.body.tags as string
+      req_shop.tags = JSON.parse(tags)
     }
 
     const user: User = res.locals.user
@@ -46,13 +44,11 @@ const shopValidation = async (
       throw new BadRequestError("Shop shopId is required")
     }
 
-    //@ts-ignore
-    if (req_shop.tags === "") {
-      req_shop.tags = [] as string[]
-    } else if (req_shop.tags) {
-      //@ts-ignore
-      req_shop.tags = JSON.parse(req_shop.tags)
+    if (req_shop.tags && req_shop.tags.length > 0) {
+      const tags = req.body.tags as string
+      req_shop.tags = JSON.parse(tags)
     }
+
     if (req_shop.name !== undefined) {
       validateShopName(req_shop.name)
     }

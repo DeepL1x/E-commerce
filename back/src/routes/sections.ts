@@ -13,13 +13,13 @@ import { sectionValidation } from "../middlewares/validations"
 
 export default (router: Router) => {
   router.get(`/${Routes.SECTIONS}/all`, getAllSections)
-  router.get(`/${Routes.SECTIONS}/:id`, getSection)
+  router.get(`/${Routes.SECTIONS}/:sectionId`, getSection)
   router.post(
-    `/${Routes.SECTIONS}`,
+    `/${Routes.SECTIONS}/:shopId`,
     auth,
+    isOwnerOfShop,
     fileUpload.array("images", 5),
     sectionValidation,
-    isOwnerOfShop,
     createSection
   )
   router.put(

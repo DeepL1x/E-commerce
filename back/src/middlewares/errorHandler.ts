@@ -10,29 +10,26 @@ export const errorHandlerMiddleware = (
   next: NextFunction
 ) => {
   let customError = {
-    // @ts-ignore
-    statusCode: err.statusCode || StatusCodes.INTERNAL_SERVER_ERROR,
-    // @ts-ignore
+    code: (err.code as number) || StatusCodes.INTERNAL_SERVER_ERROR,
     msg: err.message || "Something went wrong try again later",
   }
 
   if (err instanceof PrismaClientKnownRequestError) {
     if (err.code === "P2025") {
       customError.msg = `Record not found`
-      customError.statusCode = StatusCodes.NOT_FOUND
+      customError.code = StatusCodes.NOT_FOUND
     } else if (err.code === "P2002") {
       customError.msg = `Duplicate value entered for ${
         //@ts-ignore
         err.meta.target[0] === "shopId" ? "name" : err.meta.target
       }`
-      customError.statusCode = StatusCodes.BAD_REQUEST
-    }
-    else {
+      customError.code = StatusCodes.BAD_REQUEST
+    } else {
       customError.msg = "Something went wrong try again later..."
     }
   }
 
   console.log(err)
 
-  return res.status(customError.statusCode).json({ msg: customError.msg })
+  return res.status(customError.code).json({ msg: customError.msg })
 }

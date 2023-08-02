@@ -5,8 +5,6 @@ import { StatusCodes } from "http-status-codes"
 import jwt from "jsonwebtoken"
 import * as argon from "argon2"
 import { PrismaClient } from "@prisma/client"
-import dotenv from "dotenv"
-dotenv.config()
 
 const prisma = new PrismaClient()
 const emailRegEx =
@@ -76,11 +74,6 @@ export const signin = async (req: Request, res: Response) => {
       email: user.email,
       username: user.username,
       role: user.role,
-    }
-
-    if (user.role) {
-      //@ts-ignore
-      payload.role = user.role
     }
 
     const token = jwt.sign(payload, process.env.JWT_SECRET, {

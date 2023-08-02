@@ -19,7 +19,7 @@ export const createShop = async (req: Request, res: Response) => {
 
   if (file) {
     req_shop.shopImage =
-      `http://localhost:${process.env.PORT}/${process.env.API_URL}/${Routes.IMGS}/` +
+      `http://localhost:${process.env.PORT}/${process.env.SERVER_URL}/${Routes.IMGS}/` +
       file.filename
   }
 
@@ -44,7 +44,7 @@ export const updateShop = async (req: Request, res: Response) => {
 
     deleteFile(oldImg.split("/").pop())
     req_shop.shopImage =
-      `http://localhost:${process.env.PORT}/${process.env.API_URL}/${Routes.IMGS}/` +
+      `http://localhost:${process.env.PORT}/${process.env.SERVER_URL}/${Routes.IMGS}/` +
       file.filename
   }
 

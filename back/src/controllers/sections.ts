@@ -1,10 +1,9 @@
 import { PrismaClient, Section } from "@prisma/client"
 import e, { Request, Response } from "express"
 import { StatusCodes } from "http-status-codes"
-import dotenv from "dotenv"
 import { BadRequestError } from "../errors/bad-request"
 import { deleteFile } from "../middlewares/fileUpload"
-dotenv.config()
+import { NotFoundError } from "errors"
 
 const prisma = new PrismaClient()
 
@@ -22,17 +21,10 @@ export const getAllSections = async (req: Request, res: Response) => {
 }
 
 export const createSection = async (req: Request, res: Response) => {
-  const section: Section = req.body
+  const section = req.body as Section
   const files = req.files as Express.Multer.File[]
 
-  if (files) {
-    const imgUrls = files.map(
-      (file) =>
-        `http://localhost:${process.env.PORT}/${process.env.IMG_STORAGE_URL}/` +
-        file.filename
-    )
-    section.imgUrls = imgUrls
-  }
+  await manageSectionFiles(files, null, section, null)
 
   const createdSection = await prisma.section.create({ data: section })
 
@@ -40,38 +32,29 @@ export const createSection = async (req: Request, res: Response) => {
 }
 
 export const updateSection = async (req: Request, res: Response) => {
+  const fileIndexes = req.body.indexes as number[]
+  delete req.body.indexes
+  const deleteIndexes = req.body.deleteIndexes as number[]
+  delete req.body.deleteIndexes
   const req_section: Section = req.body
-  
-  const fileIndexes = req.body.fileIndexes as number[]
+  const { sectionId } = req.params
+
   const files = req.files as Express.Multer.File[]
 
-  if (fileIndexes && files) {
-    const MaxIndex = 5
-
-    fileIndexes.forEach((value) => {
-      if (value >= MaxIndex) {
-        throw new BadRequestError("File index is out of range")
-      }
-    })
-
-    const newImgUrls = files.map(
-      (file) =>
-        `http://localhost:${process.env.PORT}/${process.env.IMG_STORAGE_URL}/` +
-        file.filename
-    )
-    const oldUrls = (
-      await prisma.section.findUnique({
-        where: { sectionId: req_section.sectionId },
-      })
-    ).imgUrls
-
-    fileIndexes.forEach((value: number, index: number) => {
-      deleteFile(oldUrls[value].split("/").pop())
-      oldUrls[value] = newImgUrls[index]
-    })
-
-    req_section.imgUrls = oldUrls
+  const section = await prisma.section.findUnique({
+    where: { sectionId: Number(sectionId) },
+  })
+  if (!section) {
+    throw new NotFoundError("Section not found")
   }
+
+  await manageSectionFiles(
+    files,
+    fileIndexes,
+    req_section,
+    deleteIndexes,
+    sectionId
+  )
 
   const updatedSection = await prisma.section.update({
     where: { sectionId: req_section.sectionId },
@@ -95,4 +78,67 @@ export const deleteSection = async (req: Request, res: Response) => {
   }
   await prisma.section.delete({ where: { sectionId: sectionId } })
   return res.status(StatusCodes.OK).end()
+}
+
+const manageSectionFiles = async (
+  files: Express.Multer.File[] | null,
+  fileIndexes: number[] | null,
+  section: Section,
+  deleteIndexes: number[],
+  sectionId?: string
+) => {
+  if (sectionId) {
+    if (fileIndexes && fileIndexes.length > 0) {
+      const MaxIndex = 5
+      fileIndexes.forEach((value) => {
+        if (value >= MaxIndex) {
+          throw new BadRequestError("File index is out of range")
+        }
+      })
+      const oldUrls = (
+        await prisma.section.findUnique({
+          where: { sectionId: Number(sectionId) },
+        })
+      ).imgUrls
+      if (files && files.length > 0) {
+        const newImgUrls = files.map(
+          (file) =>
+            `http://localhost:${process.env.PORT}/${process.env.IMG_STORAGE_URL}/` +
+            file.filename
+        )
+        fileIndexes.forEach((value: number, index: number) => {
+          if (oldUrls[value]) {
+            deleteFile(oldUrls[value].split("/").pop())
+          }
+          oldUrls[value] = newImgUrls[index] ? newImgUrls[index] : null
+        })
+        section.imgUrls = oldUrls
+      }
+    }
+    if (deleteIndexes && deleteIndexes.length > 0) {
+      const old_section = await prisma.section.findUnique({
+        where: { sectionId: Number(sectionId) },
+      })
+      const oldUrls = old_section.imgUrls
+
+      deleteIndexes.forEach((value: number) => {
+        if (oldUrls[value]) {
+          deleteFile(oldUrls[value].split("/").pop())
+        }
+      })
+
+      section.imgUrls = oldUrls.filter(
+        (_, index) => !deleteIndexes.includes(index)
+      )
+    } else {
+      if (files && files.length > 0) {
+        const newImgUrls = files.map(
+          (file) =>
+            `http://localhost:${process.env.PORT}/${process.env.IMG_STORAGE_URL}/` +
+            file.filename
+        )
+        section.imgUrls = newImgUrls
+      }
+    }
+  }
 }

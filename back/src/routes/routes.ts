@@ -6,6 +6,7 @@ enum Routes {
   AUTH = "auth",
   REVIEWS = "reviews",
   IMGS = "imgs",
+  PAYMENTS = "payments",
 }
 
 export default Routes

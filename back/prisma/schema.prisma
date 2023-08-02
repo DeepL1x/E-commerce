@@ -8,13 +8,17 @@ datasource db {
 }
 
 model User {
-  userId   Int      @id @default(autoincrement())
+  userId   Int     @id @default(autoincrement())
   username String
-  email    String   @unique
+  email    String  @unique
   password String
   role     String?
-  reviews  Review[] @relation("reviews_to_user_relation")
-  shops    Shop[]   @relation("shops_relation")
+  stripeId String? @unique
+
+  reviews Review[]    @relation("reviews_to_user_relation")
+  shops   Shop[]      @relation("shops_relation")
+  orders  Order[]     @relation("orders_to_user")
+  cart    ItemOrder[] @relation("items_order_to_user")
 
   @@map("users")
 }
@@ -47,18 +51,20 @@ model Section {
 }
 
 model Item {
-  itemId         Int      @id @default(autoincrement())
+  itemId         Int         @id @default(autoincrement())
   name           String
-  price          Decimal  @default(0) @db.Money
-  totalAmount    Int      @default(0)
-  reservedAmount Int      @default(0)
-  currency       String   @default("USD")
+  price          Decimal     @default(0) @db.Money
+  totalAmount    Int         @default(0)
+  reservedAmount Int         @default(0)
+  currency       String      @default("USD")
+  description    String?
   coverImg       String?
   imgUrls        String[]
   shopId         String
   userId         Int
-  shop           Shop     @relation("item_to_shop_relation", fields: [shopId, userId], references: [shopId, userId])
-  reviews        Review[] @relation("reviews_to_item_relation")
+  shop           Shop        @relation("item_to_shop_relation", fields: [shopId, userId], references: [shopId, userId])
+  reviews        Review[]    @relation("reviews_to_item_relation")
+  itemOrders     ItemOrder[] @relation("item_order_to_item")
 
   @@map("items")
 }
@@ -77,4 +83,37 @@ model Review {
 
   @@unique([userId, itemId])
   @@map("reviews")
+}
+
+model ItemOrder {
+  itemOrderId Int     @id @default(autoincrement())
+  orderId     String?
+  itemId      Int
+  amount      Int
+  userId      Int?
+
+  item  Item   @relation("item_order_to_item", fields: [itemId], references: [itemId])
+  order Order? @relation("item_order_to_order", fields: [orderId], references: [orderId])
+  User  User?  @relation("items_order_to_user", fields: [userId], references: [userId])
+
+  @@unique([orderId, itemId])
+  @@map("item_orders")
+}
+
+model Order {
+  orderId   String      @id @default(uuid())
+  createdAt DateTime    @default(now())
+  status    OrderStatus @default(PENDING)
+  userEmail String
+
+  user  User?       @relation("orders_to_user", fields: [userEmail], references: [email])
+  items ItemOrder[] @relation("item_order_to_order")
+
+  @@map("orders")
+}
+
+enum OrderStatus {
+  PENDING
+  SUCCEEDED
+  CANCELLED
 }

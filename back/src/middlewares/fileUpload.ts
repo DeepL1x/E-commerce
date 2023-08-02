@@ -1,4 +1,4 @@
-  import multer, { FileFilterCallback } from "multer"
+import multer, { FileFilterCallback } from "multer"
 import { Request } from "express"
 import mimeTypes from "mime-types"
 import { BadRequestError } from "../errors/bad-request"
@@ -11,7 +11,7 @@ const storage = multer.diskStorage({
   filename: function (req: Request, file: Express.Multer.File, cb) {
     const fileExt = mimeTypes.extension(file.mimetype)
     let uniqueSuffix: string
-    //@ts-ignore
+
     uniqueSuffix = req.user.userId + "_" + Date.now()
 
     const fileName = uniqueSuffix + "." + fileExt
@@ -31,9 +31,8 @@ const fileFilter = (
     cb(new BadRequestError("File size is too large (max 2048 KB)"))
   }
   if (
-    file.fieldname === "gallery" && (
-    req.body.indexes === undefined ||
-    req.body.indexes === "")
+    file.fieldname === "gallery" &&
+    (req.body.indexes === undefined || req.body.indexes === "")
   ) {
     cb(new BadRequestError("Missing file indexes"))
   }

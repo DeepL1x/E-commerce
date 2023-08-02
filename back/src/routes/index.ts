@@ -6,6 +6,7 @@ import reviews from "./reviews"
 import shops from "./shops"
 import imgs from "./imgs"
 import sections from "./sections"
+import payments from "./payments"
 const router = express.Router()
 
 export default (): express.Router => {
@@ -16,5 +17,6 @@ export default (): express.Router => {
   shops(router)
   sections(router)
   imgs(router)
+  payments(router)
   return router
 }

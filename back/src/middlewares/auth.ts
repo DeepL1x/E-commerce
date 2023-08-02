@@ -2,6 +2,7 @@ import { PrismaClient, Review, Shop, User } from "@prisma/client"
 import { UnauthenticatedError } from "../errors/unauthenticated"
 import { Request, Response, NextFunction } from "express"
 import jwt from "jsonwebtoken"
+import { NotFoundError } from "errors"
 
 const prisma = new PrismaClient()
 
@@ -13,10 +14,9 @@ export const auth = (req: Request, res: Response, next: NextFunction) => {
   }
 
   try {
-    const payload = jwt.verify(token, process.env.JWT_SECRET)
+    const payload = jwt.verify(token, process.env.JWT_SECRET) as User
 
     res.locals.user = payload
-    //@ts-ignore
     req.user = payload
 
     return next()
@@ -42,7 +42,7 @@ export const isOwnerOfShop = async (
 ) => {
   const user: User = res.locals.user
 
-  const { shopId } = req.params
+  const { shopId, sectionId } = req.params
   if (user.role && user.role === "admin") {
     return next()
   }
@@ -51,10 +51,18 @@ export const isOwnerOfShop = async (
     shop = await prisma.shop.findUnique({
       where: { shopId: shopId },
     })
-  } else {
-    shop = await prisma.shop.findUnique({
-      where: { shopId: req.body.shopId },
+  } else if (sectionId) {
+    const section = await prisma.section.findUnique({
+      where: { sectionId: Number(sectionId) },
+      include: {
+        shop: true,
+      },
     })
+    if (section) {
+      shop = section.shop
+    } else {
+      throw new NotFoundError("Section not found")
+    }
   }
 
   if (shop && user.userId !== shop.userId) {
@@ -72,16 +80,16 @@ export const isOwnerOfItem = async (
   const { itemId } = req.params
   if (user.role && user.role === "admin") {
     return next()
-  } else if (
-    user.userId !==
-    (
-      await prisma.item.findUnique({
-        where: {
-          itemId: Number(itemId),
-        },
-      })
-    ).userId
-  ) {
+  }
+  const item = await prisma.item.findUnique({
+    where: {
+      itemId: Number(itemId),
+    },
+  })
+  if (!item) {
+    throw new NotFoundError("Item not found")
+  }
+  if (user.userId !== item.userId) {
     throw new UnauthenticatedError("Not allowed to access this route")
   }
   return next()
@@ -96,14 +104,14 @@ export const isOwnerOfReview = async (
   const { reviewId } = req.params
   if (user.role && user.role === "admin") {
     return next()
-  } else if (
-    user.userId !==
-    (
-      await prisma.review.findUnique({
-        where: { reviewId: Number(reviewId) },
-      })
-    ).userId
-  ) {
+  }
+  const review = await prisma.review.findUnique({
+    where: { reviewId: Number(reviewId) },
+  })
+  if (!review) {
+    throw new NotFoundError("Review not found")
+  }
+  if (user.userId !== review.userId) {
     throw new UnauthenticatedError("Not allowed to access this route")
   }
   return next()
