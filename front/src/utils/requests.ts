@@ -16,7 +16,7 @@ myAxios.interceptors.response.use(
 
 const asyncWrapper = (fn: Function) => {
   return async (...args: any[]) => {
-      return await fn(...args)
+    return await fn(...args)
   }
 }
 
@@ -46,3 +46,7 @@ export const putData = asyncWrapper(
     })
   }
 )
+
+export const deleteData = asyncWrapper(async (url: string, data: any) => {
+  return myAxios.delete(url, data)
+})

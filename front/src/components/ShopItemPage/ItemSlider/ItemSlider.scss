@@ -1,0 +1,43 @@
+@import "../../../../assets/colors.scss";
+
+.edit-item-slider-container {
+  display: flex;
+  flex-direction: column;
+  max-width: 500px;
+
+  .img-carousel {
+    display: flex;
+    flex-direction: column;
+    width: 400px;
+    height: 450px;
+    img {
+      max-width: 100%;
+    }
+    input {
+      font-size: 20px;
+    }
+  }
+  .img-buttons {
+    display: flex;
+    align-items: center;
+
+    .img-button {
+      padding: 0;
+      max-height: 96px;
+      max-width: 96px;
+      cursor: pointer;
+      background: $background2;
+      margin-right: 5px;
+      img {
+        margin: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: fill;
+      }
+    }
+    .active {
+      max-height: 128px;
+      max-width: 128px;
+    }
+  }
+}

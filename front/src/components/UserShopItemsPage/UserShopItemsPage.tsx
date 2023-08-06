@@ -19,7 +19,11 @@ const UserShopItemsPage = () => {
   }, [shopId])
 
   const cards = items?.map((item) => (
-    <GridCard path={`/user/${item.shopId}/${item.itemId}`} data={item} />
+    <GridCard
+      key={item.itemId}
+      path={`/user/${item.shopId}/${item.itemId}`}
+      data={item}
+    />
   ))
   return (
     <div className="items-page-container">

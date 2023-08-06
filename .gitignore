@@ -10,3 +10,4 @@ typescript/**/migrations/
 misc/**/migrations/
 databases/**/migrations/
 experimental/**/*.db
+test-imgs/**

@@ -22,12 +22,12 @@ const UserMenu = ({ setIsVisible }: UserMenuProps) => {
         Shops
       </NavLink>
       <NavLink
-        to="/user/orders"
+        to="/user/cart"
         className="user-menu-item"
         onClick={() => setIsVisible(false)}
       >
         <img src="/assets/shopping-cart.svg" alt="Orders" />
-        Orders
+        Shopping Cart
       </NavLink>
       <div
         className="user-menu-item"
