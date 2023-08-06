@@ -35,9 +35,9 @@ export const updateItem = async (req: Request, res: Response) => {
   const req_item: Item = req.body
   const { itemId } = req.params
   const files = req.files as { [fieldname: string]: Express.Multer.File[] }
-
+  
   const cover = files["cover"] ? files["cover"][0] : null
-  const gallery = files["galley"]
+  const gallery = files["gallery"]
 
   await manageItemFiles(
     cover,
