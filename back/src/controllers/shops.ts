@@ -2,9 +2,8 @@ import { Item, PrismaClient, Shop, User } from "@prisma/client"
 import { Request, Response } from "express"
 import { StatusCodes } from "http-status-codes"
 import Routes from "../routes/routes"
-import { NotFoundError } from "../errors/not-found"
+import { NotFoundError, UnauthenticatedError} from "../errors"
 import { deleteFile } from "../middlewares/fileUpload"
-import { UnauthenticatedError } from "../errors/unauthenticated"
 
 const prisma = new PrismaClient()
 

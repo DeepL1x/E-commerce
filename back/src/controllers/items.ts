@@ -1,10 +1,8 @@
 import { PrismaClient, Item, Review } from "@prisma/client"
-import { BadRequestError } from "../errors/bad-request"
 import { Request, Response } from "express"
 import { StatusCodes } from "http-status-codes"
 import { deleteFile } from "../middlewares/fileUpload"
-import { TItem } from "types"
-import { NotFoundError } from "errors"
+import { NotFoundError, BadRequestError } from "../errors"
 
 const prisma = new PrismaClient()
 

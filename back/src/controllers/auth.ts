@@ -1,5 +1,4 @@
-import { UnauthenticatedError } from "../errors/unauthenticated"
-import { BadRequestError } from "../errors/bad-request"
+import { UnauthenticatedError, BadRequestError } from "../errors"
 import { Request, Response } from "express"
 import { StatusCodes } from "http-status-codes"
 import jwt from "jsonwebtoken"

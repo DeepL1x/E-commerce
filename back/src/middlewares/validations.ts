@@ -1,7 +1,6 @@
 import { Review, Shop, User } from "@prisma/client"
-import { BadRequestError } from "../errors/bad-request"
+import { BadRequestError } from "../errors"
 import { NextFunction, Request, Response } from "express"
-import { TShop } from "types"
 const shopNameRegEx = /^[A-Za-z0-9 ]*$/
 
 const validateShopName = (shopName: string) => {

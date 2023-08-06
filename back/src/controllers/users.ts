@@ -62,23 +62,20 @@ export const deleteUserById = async (req: Request, res: Response) => {
 
 export const addItemToCart = async (req: Request, res: Response) => {
   const { userId } = res.locals.user
-  const items = (
-    await prisma.user.findUnique({
-      where: { userId: userId },
-      include: {
-        cart: {
-          select: {
-            itemId: true,
-          },
-        },
-      },
-    })
-  ).cart
+  const user = await prisma.user.findUnique({
+    where: { userId: userId },
+    include: {
+      cart: true,
+    },
+  })
+  const items = user?.cart
   for (const item of items) {
     if (item.itemId === req.body.itemId) {
-      return res.status(StatusCodes.BAD_REQUEST).json({
-        message: "item already in cart",
+      const result = await prisma.itemOrder.update({
+        where: { itemOrderId: item.itemOrderId },
+        data: { amount: item.amount + req.body.amount },
       })
+      return res.status(StatusCodes.OK).json(result)
     }
   }
   const result = await prisma.itemOrder.create({
@@ -138,4 +135,17 @@ export const deleteAllItemsFromCart = async (req: Request, res: Response) => {
   })
 
   return res.status(StatusCodes.OK).json(result)
+}
+
+export const getUserOrders = async (req: Request, res: Response) => {
+  const { email } = res.locals.user
+
+  const orders = await prisma.order.findMany({
+    where: { userEmail: email },
+    include: {
+      items: true,
+    },
+  })
+
+  return res.status(StatusCodes.OK).json(orders)
 }

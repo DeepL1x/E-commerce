@@ -31,7 +31,7 @@ model Shop {
   userId    Int
   items     Item[]    @relation("item_to_shop_relation")
   sections  Section[] @relation("section_to_shop_relation")
-  user      User      @relation("shops_relation", fields: [userId], references: [userId])
+  user      User?      @relation("shops_relation", fields: [userId], references: [userId])
 
   @@unique([shopId, userId])
   @@map("shops")
@@ -44,7 +44,7 @@ model Section {
   order     Int?
   shopId    String
   userId    Int
-  shop      Shop     @relation("section_to_shop_relation", fields: [shopId, userId], references: [shopId, userId])
+  shop      Shop     @relation("section_to_shop_relation", fields: [shopId, userId], references: [shopId, userId], onDelete: Cascade)
 
   @@unique([order, shopId])
   @@map("sections")
@@ -62,7 +62,7 @@ model Item {
   imgUrls        String[]
   shopId         String
   userId         Int
-  shop           Shop        @relation("item_to_shop_relation", fields: [shopId, userId], references: [shopId, userId])
+  shop           Shop        @relation("item_to_shop_relation", fields: [shopId, userId], references: [shopId, userId], onDelete: Cascade)
   reviews        Review[]    @relation("reviews_to_item_relation")
   itemOrders     ItemOrder[] @relation("item_order_to_item")
 
@@ -78,7 +78,7 @@ model Review {
   updatedAt   DateTime @updatedAt
   userId      Int
   itemId      Int
-  item        Item     @relation("reviews_to_item_relation", fields: [itemId], references: [itemId])
+  item        Item     @relation("reviews_to_item_relation", fields: [itemId], references: [itemId], onDelete: Cascade)
   user        User     @relation("reviews_to_user_relation", fields: [userId], references: [userId])
 
   @@unique([userId, itemId])
@@ -87,16 +87,15 @@ model Review {
 
 model ItemOrder {
   itemOrderId Int     @id @default(autoincrement())
-  orderId     String?
+  orderId     String? 
   itemId      Int
   amount      Int
   userId      Int?
 
-  item  Item   @relation("item_order_to_item", fields: [itemId], references: [itemId])
+  item  Item?   @relation("item_order_to_item", fields: [itemId], references: [itemId])
   order Order? @relation("item_order_to_order", fields: [orderId], references: [orderId])
   User  User?  @relation("items_order_to_user", fields: [userId], references: [userId])
 
-  @@unique([orderId, itemId])
   @@map("item_orders")
 }
 

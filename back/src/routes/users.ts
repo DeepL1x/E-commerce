@@ -10,6 +10,7 @@ import {
   updateItemInCart,
   deleteItemFromCart,
   deleteAllItemsFromCart,
+  getUserOrders,
 } from "../controllers/users"
 import { isAdmin, auth } from "../middlewares/auth"
 import express from "express"
@@ -19,6 +20,7 @@ export default (router: express.Router) => {
   router.get(`/${Routes.USERS}/all`, auth, isAdmin, getAllUsers)
   router.get(`/${Routes.USERS}/shops`, auth, getUserShops)
   router.get(`/${Routes.USERS}/cart`, auth, getUserCart)
+  router.get(`/${Routes.USERS}/orders`, auth, getUserOrders)
   router.get(`/${Routes.USERS}/:email`, auth, getUserByEmail)
   router.put(`/${Routes.USERS}`, auth, updateUser)
   router.delete(`/${Routes.USERS}`, auth, deleteUser)

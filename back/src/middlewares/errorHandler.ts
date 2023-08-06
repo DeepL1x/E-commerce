@@ -1,6 +1,6 @@
 import { StatusCodes } from "http-status-codes"
 import { Request, Response, NextFunction } from "express"
-import { CustomAPIError } from "errors/custom-error"
+import { CustomAPIError } from "../errors/custom-error"
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library"
 
 export const errorHandlerMiddleware = (

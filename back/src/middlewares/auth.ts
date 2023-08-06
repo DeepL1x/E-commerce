@@ -1,8 +1,7 @@
-import { PrismaClient, Review, Shop, User } from "@prisma/client"
-import { UnauthenticatedError } from "../errors/unauthenticated"
+import { PrismaClient, User } from "@prisma/client"
 import { Request, Response, NextFunction } from "express"
 import jwt from "jsonwebtoken"
-import { NotFoundError } from "errors"
+import { NotFoundError, UnauthenticatedError } from "../errors"
 
 const prisma = new PrismaClient()
 
@@ -17,6 +16,7 @@ export const auth = (req: Request, res: Response, next: NextFunction) => {
     const payload = jwt.verify(token, process.env.JWT_SECRET) as User
 
     res.locals.user = payload
+    //@ts-ignore
     req.user = payload
 
     return next()
