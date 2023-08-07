@@ -20,8 +20,10 @@ export const getAllSections = async (req: Request, res: Response) => {
 }
 
 export const createSection = async (req: Request, res: Response) => {
-  const section = req.body as Section
   const files = req.files as Express.Multer.File[]
+  delete req.body.indexes
+  delete req.body.deleteIndexes
+  const section = req.body as Section
 
   await manageSectionFiles(files, null, section, null)
 
@@ -56,7 +58,7 @@ export const updateSection = async (req: Request, res: Response) => {
   )
 
   const updatedSection = await prisma.section.update({
-    where: { sectionId: req_section.sectionId },
+    where: { sectionId: Number(sectionId) },
     data: req_section,
   })
 
@@ -64,18 +66,15 @@ export const updateSection = async (req: Request, res: Response) => {
 }
 
 export const deleteSection = async (req: Request, res: Response) => {
-  const { sectionId } = req.body
+  const { sectionId } = req.params
   const urls = (
-    await prisma.section.findUnique({
-      where: { sectionId: sectionId },
-    })
+    await prisma.section.delete({ where: { sectionId: Number(sectionId) } })
   )?.imgUrls
   if (urls) {
     urls.forEach((url) => {
       deleteFile(url.split("/").pop())
     })
   }
-  await prisma.section.delete({ where: { sectionId: sectionId } })
   return res.status(StatusCodes.OK).end()
 }
 
@@ -129,15 +128,15 @@ const manageSectionFiles = async (
       section.imgUrls = oldUrls.filter(
         (_, index) => !deleteIndexes.includes(index)
       )
-    } else {
-      if (files && files.length > 0) {
-        const newImgUrls = files.map(
-          (file) =>
-            `http://localhost:${process.env.PORT}/${process.env.IMG_STORAGE_URL}/` +
-            file.filename
-        )
-        section.imgUrls = newImgUrls
-      }
+    }
+  } else {
+    if (files && files.length > 0) {
+      const newImgUrls = files.map(
+        (file) =>
+          `http://localhost:${process.env.PORT}/${process.env.IMG_STORAGE_URL}/` +
+          file.filename
+      )
+      section.imgUrls = newImgUrls
     }
   }
 }

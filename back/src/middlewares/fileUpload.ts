@@ -37,12 +37,11 @@ const fileFilter = (
     cb(new BadRequestError("Missing file indexes"))
   }
 
-  if (
-    req.body.indexes &&
-    req.body.indexes.length > 0
-  ) {
-    const indexes = JSON.parse(req.body.indexes) as number[]
-    // const indexes = req.body.indexes as number[]
+  if (req.body.indexes && req.body.indexes.length > 0) {
+    let indexes = req.body.indexes as number[]
+    if (typeof req.body.indexes === "string") {
+      indexes = JSON.parse(req.body.indexes) as number[]
+    }
     const duplicates = indexes.filter(
       (item: number, index: number) => indexes.indexOf(item) !== index
     )
