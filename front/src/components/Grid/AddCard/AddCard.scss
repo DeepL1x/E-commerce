@@ -1,15 +1,16 @@
 @import "../../../../assets/colors.scss";
 
 .add-card-container {
-  border: 1px solid $border;
+  box-shadow: 1px 0 $border, 0 1px $border;
   width: 300px;
+  height: 350px;
   background-color: $background1;
   display: flex;
   justify-content: center;
   align-items: center;
   img {
-    height: 80%;
-    width: 80%;
+    height: 90%;
+    width: 90%;
     object-fit: cover;
   }
 }

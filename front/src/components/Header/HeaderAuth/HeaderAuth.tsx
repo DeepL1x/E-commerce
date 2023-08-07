@@ -9,7 +9,7 @@ const HeaderAuth = () => {
 
   return (
     <div className="header-auth-container">
-      {user && <HeaderUserMenu />}
+      {user.isAuthenticated && <HeaderUserMenu />}
       <HeaderSignIn />
     </div>
   )

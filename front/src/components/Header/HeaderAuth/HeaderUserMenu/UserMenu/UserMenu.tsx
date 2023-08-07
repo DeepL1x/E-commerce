@@ -27,7 +27,7 @@ const UserMenu = ({ setIsVisible }: UserMenuProps) => {
         onClick={() => setIsVisible(false)}
       >
         <img src="/assets/shopping-cart.svg" alt="Orders" />
-        Shopping Cart
+        Cart
       </NavLink>
       <div
         className="user-menu-item"

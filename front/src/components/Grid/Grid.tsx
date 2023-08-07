@@ -8,7 +8,7 @@ type GridProps = {
 const Grid = (props: PropsWithChildren<GridProps>) => {
   return (
     <div className="grid-container">
-      <span>{props.title}</span>
+      <div className="grid-title">{props.title}</div>
       <div className="grid-content">{props.children}</div>
     </div>
   )

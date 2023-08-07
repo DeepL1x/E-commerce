@@ -1,11 +1,7 @@
 import { TSection } from "types"
 import "./Section.scss"
 
-type SectionProps = TSection & {
-  editMode?: boolean
-}
-
-const Section = (props: SectionProps) => {
+const Section = (props: TSection) => {
   const images = props.imgUrls.map((Url, index) => (
     <img key={index} src={Url} loading="lazy"  alt="section image" />
   ))

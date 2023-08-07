@@ -18,7 +18,10 @@ export type TSection = {
   order?: number
   shopId: string
   userId: number
-  imgIndexes?: number[]
+  images?: Blob[]
+  indexes?: number[]
+  deleteCover?: boolean
+  deleteIndexes?: number[]
 }
 
 export type Filter = {
@@ -40,4 +43,6 @@ export type TItem = TItemCard & {
   gallery?: Blob[]
   imgUrls: string[]
   indexes?: number[]
+  deleteCover?: boolean
+  deleteIndexes?: number[]
 }

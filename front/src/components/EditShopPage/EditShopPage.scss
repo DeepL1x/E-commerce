@@ -58,4 +58,17 @@
         height: fit-content;
     }
   }
+
+
+  .add-section-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 36px;
+    font-size: 36px;
+    cursor: pointer;
+    img {
+      max-height: 100%;
+    }
+  }
 }

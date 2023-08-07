@@ -4,34 +4,32 @@
   display: flex;
   flex-direction: column;
   background-color: $background1;
-  border: 1px solid $border;
+  box-shadow: 1px 0 $border, 0 1px $border;
   width: 300px;
-  // max-width: 450px;
-  // min-width: 300px;
-  // max-height: 600px;
-  // min-height: 400px;
+  height: 350px;
+  align-items: center;
   img {
     height: 70%;
-    width: 100%;
-    object-fit: cover;
+    max-width: 100%;
+    object-fit: contain;
   }
   .grid-card-info {
     display: flex;
     flex-direction: column;
     justify-content: center;
     color: black;
+    width: 90%;
+
     .grid-card-name {
       display: flex;
       justify-content: center;
       font-size: 22px;
-      width: 90%;
     }
     .grid-card-tags {
       display: flex;
       justify-content: center;
       flex-wrap: wrap;
       font-size: 16px;
-      width: 90%;
       div {
         margin: 0 5px 0 5px;
       }

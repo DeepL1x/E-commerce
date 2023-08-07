@@ -1,12 +1,12 @@
-import Section from "components/ShopPage/Section/Section"
 import { useState, useEffect, useRef } from "react"
 import { useParams, NavLink, useNavigate } from "react-router-dom"
 import TagsInput from "react-tagsinput"
-import { TShop } from "types"
+import { TSection, TShop } from "types"
 import { useImmer } from "use-immer"
-import { getData, postData, putData } from "utils/requests"
+import { deleteData, getData, postData, putData } from "utils/requests"
 import "react-tagsinput/react-tagsinput.css"
 import "./EditShopPage.scss"
+import EditSection from "./EditSection/EditSection"
 
 const API = import.meta.env.VITE_API_URL
 const emptyShop = {
@@ -18,6 +18,7 @@ export const EditShopPage = () => {
   const [modified, setModified] = useImmer<TShop>({} as TShop)
   const [isSaving, setIsSaving] = useState(false)
   const [reset, setReset] = useState(false)
+  const [newSection, setNewSection] = useState(false)
   const form = useRef<HTMLFormElement>(null)
   const { shopId } = useParams()
   const navigate = useNavigate()
@@ -38,9 +39,14 @@ export const EditShopPage = () => {
   }, [shopId, reset])
 
   const sections = sectionsData?.map((section) => (
-    <Section key={section.sectionId} {...section} />
+    <EditSection
+      key={section.sectionId}
+      {...section}
+      setReset={setReset}
+      reset={reset}
+      setNewSection={setNewSection}
+    />
   ))
-
   const handleImgInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
 
@@ -121,7 +127,6 @@ export const EditShopPage = () => {
       draft[e.target.name as keyof TShop] = e.target.value as never
     })
   }
-
   return (
     <div className="edit-shop-page-container">
       <form ref={form} className="shop-page-header" onSubmit={handleSubmit}>
@@ -172,7 +177,20 @@ export const EditShopPage = () => {
           Browse items
         </NavLink>
       </form>
-      {sections}
+      {shopId && sections}
+      {shopId && newSection && (
+        <EditSection
+          {...({} as TSection)}
+          setReset={setReset}
+          reset={reset}
+          setNewSection={setNewSection}
+        />
+      )}
+      {shopId && !newSection && (
+        <div className="add-section-button" onClick={() => setNewSection(true)}>
+          <img src="/assets/cross.svg" alt="add section" /> Add section
+        </div>
+      )}
     </div>
   )
 }

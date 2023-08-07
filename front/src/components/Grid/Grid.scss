@@ -1,9 +1,16 @@
+@import "../../../assets/colors.scss";
+
 .grid-container {
   width: 100%;
+
+  .grid-title {
+    font-size: 24px;
+    margin-left: 10px;
+  }
   .grid-content {
+    box-shadow: -1px 0 $border, 0 -1px $border;
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 20px;
+    grid-template-columns: repeat(auto-fill, 300px);
+    gap: 1px;
   }
 }
-

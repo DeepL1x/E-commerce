@@ -1,0 +1,77 @@
+.shop-section {
+  width: 100%;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 400px;
+  .edit-section-image-grid {
+    display: grid;
+    position: relative;
+    grid-auto-flow: column;
+    grid-template-columns: repeat(auto-fit, 1fr);
+    gap: 0;
+
+    width: 100%;
+    height: inherit;
+    .edit-image-container {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: inherit;
+      width: 100%;
+      img {
+        height: 370px;
+        width: 100%;
+        object-fit: cover;
+        user-select: none;
+      }
+      .image-delete {
+        position: absolute;
+        top: 0;
+        right: 0;
+        cursor: pointer;
+        img {
+          max-height: 36px;
+        }
+      }
+    }
+    .add-image-button {
+      position: absolute;
+      right: 0;
+      top: 40%;
+    }
+  }
+  .section-text-container {
+    position: absolute;
+    width: fit-content;
+    height: fit-content;
+
+    .edit-section-text {
+      text-align: center;
+      font-size: 24px;
+      border: 0;
+      background: 0;
+      z-index: 3;
+      height: fit-content;
+      backdrop-filter: blur(30px) saturate(70%);
+    }
+  }
+  .section-submit {
+    position: absolute;
+    width: fit-content;
+    top: 50px;
+  }
+
+  .section-delete {
+    position: absolute;
+    top: 0;
+    left: 0;
+    cursor: pointer;
+    color: white;
+    display: flex;
+    align-items: center;
+    -webkit-text-stroke: 1px red;
+  }
+}

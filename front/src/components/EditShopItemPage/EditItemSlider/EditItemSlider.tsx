@@ -46,7 +46,6 @@ const EditItemSlider = (props: EditItemSliderProps) => {
 
             if (draft.indexes.indexOf(imgIndex) !== -1) {
               draft.gallery[draft.indexes.indexOf(imgIndex)] = file as Blob
-              draft.indexes[draft.indexes.indexOf(imgIndex)] = imgIndex
             } else {
               draft.indexes.push(imgIndex)
               draft.gallery.push(file as Blob)
