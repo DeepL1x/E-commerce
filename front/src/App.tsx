@@ -4,6 +4,7 @@ import AllRoutes from "Routes/Routes"
 import AuthContextProvider from "contexts/AuthContext"
 import MobileContextProvider from "contexts/MobileContext"
 import { BrowserRouter } from "react-router-dom"
+import NavBar from "components/NavBar/NavBar"
 
 function App() {
   return (
@@ -12,6 +13,7 @@ function App() {
         <MobileContextProvider>
           <AuthContextProvider>
             <Header />
+            <NavBar/>
             <AllRoutes />
           </AuthContextProvider>
         </MobileContextProvider>

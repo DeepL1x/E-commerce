@@ -1,0 +1,44 @@
+@import "../../../assets/colors.scss";
+
+.navbar-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 24px;
+  position: sticky;
+  top: 56px;
+  width: 100%;
+  box-shadow: 0 1px $border;
+  background: $background1;
+  z-index: 1;
+  .back-btn {
+    height: 90%;
+    width: 3%;
+    display: flex;
+    justify-content: end;
+    img {
+      cursor: pointer;
+      border-radius: 100%;
+      border: 1px solid $border;
+      max-height: 100%;
+      background: $background2;
+    }
+  }
+  .page-btns-container {
+    height: 90%;
+    display: flex;
+    width: 94%;
+    justify-content: center;
+    align-items: center;
+    .page-btn {
+      cursor: pointer;
+      padding: 0 5px;
+      font-size: 14px;
+      font-weight: 500;
+      margin-right: 10px;
+      border: 1px solid $border;
+      border-radius: 20px;
+      background: $background2;
+    }
+  }
+}

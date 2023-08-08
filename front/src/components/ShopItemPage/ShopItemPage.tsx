@@ -1,9 +1,10 @@
-import { useNavigate, useParams } from "react-router-dom"
+import { useParams } from "react-router-dom"
 import "./ShopItemPage.scss"
 import ItemSlider from "./ItemSlider/ItemSlider"
 import { TItem } from "types"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useContext } from "react"
 import { getData, postData } from "utils/requests"
+import { AuthContext } from "contexts/AuthContext"
 
 const API = import.meta.env.VITE_API_URL
 const emptyItem = {
@@ -17,7 +18,7 @@ const ShopItemPage = () => {
   const [data, setData] = useState(emptyItem as TItem)
   const [isSaving, setIsSaving] = useState(false)
   const [amount, setAmount] = useState(0)
-
+  const { user } = useContext(AuthContext)
   useEffect(() => {
     getData(API + `/items/${itemId}`).then((res: TItem) => {
       if (res) {
@@ -84,7 +85,7 @@ const ShopItemPage = () => {
               <button
                 className="add-to-cart"
                 onClick={handleAddToCart}
-                disabled={isSaving || amount <= 0}
+                disabled={isSaving || amount <= 0 || !user.isAuthenticated}
               >
                 Add to cart <img src="/assets/shopping-cart.svg" alt="cart" />
               </button>

@@ -127,6 +127,22 @@ export const EditShopPage = () => {
       draft[e.target.name as keyof TShop] = e.target.value as never
     })
   }
+
+  const handleDeleteShop = () => {
+    if (shopId) {
+      deleteData(API + `/shops/${shopId}`)
+        .then((res: TShop) => {
+          if (res) {
+            navigate(`/user/shops`)
+          }
+        })
+        .catch(_=>alert("Something went wrong"))
+    }
+    else {
+      navigate(`/user/shops`)
+    }
+  }
+
   return (
     <div className="edit-shop-page-container">
       <form ref={form} className="shop-page-header" onSubmit={handleSubmit}>
@@ -171,7 +187,12 @@ export const EditShopPage = () => {
             }
           />
         </div>
-        <input type="submit" className="submit-button" />
+        <div className="manage-shop-container">
+          <input type="submit" className="submit-button" />
+          <div className="delete-shop-button" onClick={handleDeleteShop}>
+            <img src="/assets/delete.svg" alt="delete" /> Delete shop
+          </div>
+        </div>
         <NavLink to={`/user/${shopId}/items`} className="browse-items-link">
           <img src="/assets/shopping-cart.svg" alt="shopping cart" />
           Browse items

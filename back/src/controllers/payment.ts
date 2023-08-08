@@ -168,7 +168,7 @@ export const checkoutCart = async (req: Request, res: Response) => {
     line_items,
     mode: "payment",
     success_url: `${process.env.CLIENT_URL}/user/cart`,
-    cancel_url: `${process.env.CLIENT_URL}`,
+    cancel_url: `${process.env.CLIENT_URL}/user/cart`,
   })
 
   return res.send({ url: session.url })

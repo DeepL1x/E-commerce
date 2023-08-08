@@ -99,6 +99,7 @@ const EditSection = (props: EditSectionProps) => {
         })
         .finally(() => {
           setIsSaving(false)
+          props.setNewSection(false)
         })
     } else {
       postData(API + `/sections/${shopId}`, dataToSend, {
@@ -115,6 +116,7 @@ const EditSection = (props: EditSectionProps) => {
         })
         .finally(() => {
           setIsSaving(false)
+          props.setNewSection(false)
         })
     }
   }
@@ -130,7 +132,7 @@ const EditSection = (props: EditSectionProps) => {
     return "/assets/default-image.png"
   }
 
-  const handleDeleteSection = async (e: React.MouseEvent<HTMLDivElement>) => {
+  const handleDeleteSection = async (_: React.MouseEvent<HTMLDivElement>) => {
     if (props.sectionId) {
       try {
         await deleteData(API + `/sections/${props.sectionId}`)
@@ -149,7 +151,7 @@ const EditSection = (props: EditSectionProps) => {
         if (indexes.indexOf(index) !== -1) {
           setIndexes((draft) => draft.filter((i) => i !== index))
           setFiles((draft) =>
-            draft.filter((i, fileIndex) => fileIndex !== index)
+            draft.filter((_, fileIndex) => fileIndex !== index)
           )
         }
         draft.push(index)
@@ -170,7 +172,7 @@ const EditSection = (props: EditSectionProps) => {
           disabled={isSaving}
         />
         <div className="image-delete" onClick={() => handleDeleteImage(i)}>
-          <img src="/assets/delete.svg" alt="delete section" />
+          <img src="/assets/delete.svg" alt="delete image" />
         </div>
       </div>
     )

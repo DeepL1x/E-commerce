@@ -10,7 +10,7 @@ const HeaderUserMenu = () => {
   return (
     <div
       className="header-user-menu-container"
-      onClick={() => (isVisible ? null : setIsVisible(!isVisible))}
+      onClick={() => (setIsVisible(!isVisible))}
     >
       {user && (
         <div className="user-credentials">
